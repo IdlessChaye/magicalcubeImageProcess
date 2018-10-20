@@ -74,6 +74,7 @@ module magicalImageProcess_top (
         .rst(rst_1)
     );
 
+    wire[9:0] V_cnt,H_cnt;
     cam_ov7670_ov7725 cam_ov7670_ov7725_0 (
         .addr(cam_ov7670_ov7725_0_addr),
         .dout(cam_ov7670_ov7725_0_dout),
@@ -85,15 +86,6 @@ module magicalImageProcess_top (
         .vsync(vsync_1),
         .V_cnt(V_cnt),
         .H_cnt(H_cnt)
-    );
-
-    wire[9:0] V_cnt,H_cnt;
-    wire[]
-    super_stop_watch_test super_stop_watch_test_0 (
-        .en0(en0),.en1(en1),
-        .sseg0(sseg0),.sseg1(sseg1),
-        .show_data({oneface_dout2[4:0],oneface_dout1}),
-        .clk(clk_in1_1)
     );
 
     wire[5:0] fangdou_face_select_signals;
@@ -133,13 +125,13 @@ module magicalImageProcess_top (
         .face_select(face_select)
     );
 
-    output[26:0] oneface_dout1;
-    output[26:0] oneface_dout2;
-    output[26:0] oneface_dout3;
-    output[26:0] oneface_dout4;
-    output[26:0] oneface_dout5;
-    output[26:0] oneface_dout6;
-    output out_en;
+    wire[26:0] oneface_dout1;
+    wire[26:0] oneface_dout2;
+    wire[26:0] oneface_dout3;
+    wire[26:0] oneface_dout4;
+    wire[26:0] oneface_dout5;
+    wire[26:0] oneface_dout6;
+    wire out_en;
     image2magicalhsv image2magicalhsv_0 (
         .H_cnt(H_cnt),
         .V_cnt(V_cnt),
@@ -155,4 +147,13 @@ module magicalImageProcess_top (
         .oneface_dout6(oneface_dout6),
         .out_en(out_en)
     );
+    
+    super_stop_watch_test super_stop_watch_test_0 (
+        .en0(en0),.en1(en1),
+        .sseg0(sseg0),.sseg1(sseg1),
+        .show_data({oneface_dout2[4:0],oneface_dout1}),
+        .clk(clk_in1_1)
+    );
+
+
 endmodule

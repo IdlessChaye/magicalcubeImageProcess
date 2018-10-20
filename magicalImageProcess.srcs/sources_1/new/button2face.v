@@ -15,4 +15,4 @@ module button2face (
             6'b000001: face_select_reg = 3'b110;
             default: face_select_reg = 3'b111;
         endcase
-    
+endmodule
