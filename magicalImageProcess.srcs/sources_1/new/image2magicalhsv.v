@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 1ns / 1ns
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -21,8 +21,8 @@
 
 
 module image2magicalhsv (
-    input[11:0] H_cnt,
-    input[10:0] V_cnt,
+    input[9:0] H_cnt,
+    input[9:0] V_cnt,
     input[15:0] din,
     input we,
     input wclk,
@@ -239,7 +239,7 @@ module image2magicalhsv (
              orange=30,yellow=60;
     wire white;
     wire rd,gd,bd,od,yd;
-    assign white = max > 225 ?1'b1:1'b0;
+    assign white = min > 225 ?1'b1:1'b0;
     assign rd = h-red;
     assign gd = h>green? h-green:green-h;
     assign bd = h>blue?  h-blue :blue-h;

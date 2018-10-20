@@ -14,7 +14,8 @@ module magicalImageProcess_top (
 
     output[3:0] en0,en1,
     output[7:0] sseg0,sseg1,
-    output signal0
+    output signal0,
+    input[5:0] face_select_signals
     );
 
     wire clk_in1_1;
@@ -82,15 +83,76 @@ module magicalImageProcess_top (
         .d(d_1),
         .href(href_1),
         .vsync(vsync_1),
-        .V_cnt(V_cnt)
+        .V_cnt(V_cnt),
+        .H_cnt(H_cnt)
     );
 
-    wire[15:0] V_cnt;
+    wire[9:0] V_cnt,H_cnt;
+    wire[]
     super_stop_watch_test super_stop_watch_test_0 (
         .en0(en0),.en1(en1),
         .sseg0(sseg0),.sseg1(sseg1),
-        .show_data({V_cnt,cam_ov7670_ov7725_0_addr[15:0]}),
+        .show_data({oneface_dout2[4:0],oneface_dout1}),
         .clk(clk_in1_1)
     );
 
+    wire[5:0] fangdou_face_select_signals;
+    wire[2:0] face_select;
+    fangdou fangdou_0(
+        .clk(clk_in1),
+        .button(face_select_signals[0]),
+        .fangdou_button(fangdou_face_select_signals[0])
+    );
+    fangdou fangdou_1(
+        .clk(clk_in1),
+        .button(face_select_signals[1]),
+        .fangdou_button(fangdou_face_select_signals[1])
+    );    
+    fangdou fangdou_2(
+        .clk(clk_in1),
+        .button(face_select_signals[2]),
+        .fangdou_button(fangdou_face_select_signals[2])
+    );    
+    fangdou fangdou_3(
+        .clk(clk_in1),
+        .button(face_select_signals[3]),
+        .fangdou_button(fangdou_face_select_signals[3])
+    );
+    fangdou fangdou_4(
+        .clk(clk_in1),
+        .button(face_select_signals[4]),
+        .fangdou_button(fangdou_face_select_signals[4])
+    );
+    fangdou fangdou_5(
+        .clk(clk_in1),
+        .button(face_select_signals[5]),
+        .fangdou_button(fangdou_face_select_signals[5])
+    );
+    button2face button2face_0(
+        .face_select_signals(fangdou_face_select_signals),
+        .face_select(face_select)
+    );
+
+    output[26:0] oneface_dout1;
+    output[26:0] oneface_dout2;
+    output[26:0] oneface_dout3;
+    output[26:0] oneface_dout4;
+    output[26:0] oneface_dout5;
+    output[26:0] oneface_dout6;
+    output out_en;
+    image2magicalhsv image2magicalhsv_0 (
+        .H_cnt(H_cnt),
+        .V_cnt(V_cnt),
+        .din(cam_ov7670_ov7725_0_dout),
+        .we(cam_ov7670_ov7725_0_we),
+        .wclk(cam_ov7670_ov7725_0_wclk),
+        .face_select(face_select),
+        .oneface_dout1(oneface_dout1),
+        .oneface_dout2(oneface_dout2),
+        .oneface_dout3(oneface_dout3),
+        .oneface_dout4(oneface_dout4),
+        .oneface_dout5(oneface_dout5),
+        .oneface_dout6(oneface_dout6),
+        .out_en(out_en)
+    );
 endmodule
