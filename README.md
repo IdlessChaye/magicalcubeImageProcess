@@ -22,3 +22,10 @@ GPLv2.0
 
 1. finish image2magicalhsv.v
 2. finish fangdou.v and button2face.v, but they are buggy
+
+
+#### 18.10.29
+
+1. image2magicalhsv.v is also buggy
+2. finish div_rill_clk.v and rgb2hsv.v, they work well
+3. the top file should be modified into sequential logic design 
