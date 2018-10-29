@@ -2,7 +2,7 @@
 
 ## Function
 
-use ov7725 camera to get pixals of right position on the surface of magiccube, which will be transfered to 3 bits color encoding through hsv encoding.
+use ov7725 camera to get pixals of right position on the surface of magiccube, which will be transfered into 3 bits color encoding through hsv encoding.
 
 ## Outputs
 
@@ -10,7 +10,7 @@ use ov7725 camera to get pixals of right position on the surface of magiccube, w
   
 ## Board
 
-Xilinx FPGA EGO1 xc7a35tcsg
+Xilinx FPGA EGO1 xc7a35tcsg324
 
 ## License
 
@@ -22,7 +22,6 @@ GPLv2.0
 
 1. finish image2magicalhsv.v
 2. finish fangdou.v and button2face.v, but they are buggy
-
 
 #### 18.10.29
 
