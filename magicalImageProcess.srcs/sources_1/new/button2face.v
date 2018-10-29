@@ -8,11 +8,11 @@ module button2face (
     always @ *
         case(face_select_signals)
             6'b000001: face_select_reg = 3'b001;
-            6'b000001: face_select_reg = 3'b010;
-            6'b000001: face_select_reg = 3'b011;
-            6'b000001: face_select_reg = 3'b100;
-            6'b000001: face_select_reg = 3'b101;
-            6'b000001: face_select_reg = 3'b110;
+            6'b000010: face_select_reg = 3'b010;
+            6'b000100: face_select_reg = 3'b011;
+            6'b001000: face_select_reg = 3'b100;
+            6'b010000: face_select_reg = 3'b101;
+            6'b100000: face_select_reg = 3'b110;
             default: face_select_reg = 3'b111;
         endcase
 endmodule

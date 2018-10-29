@@ -58,13 +58,16 @@ module fangdou(
 				if(button == 1) begin
 					go = 1;
 					state_next = s1;
-				end
+				end else
+				    go = 0;
 			end
 			s1: begin
 				if(button == 1) begin
 					if(tick == 1) begin
 						state_next = s2;	
 						go = 0;					
+					end else begin
+					    go = 1;
 					end
 				end
 				else begin
@@ -76,14 +79,16 @@ module fangdou(
 				if(button == 0) begin
 					state_next = s3;
 					go = 1;
-				end
+				end else
+				    go = 0;
 			end
 			s3: begin
 				if(button == 0) begin
 					if(tick == 1) begin
 						state_next = s0;
 						go = 0;
-					end
+					end else
+					    go = 1;
 				end
 				else begin
 					state_next = s2;

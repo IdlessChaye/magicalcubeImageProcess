@@ -33,7 +33,7 @@ module image2magicalhsv (
     output[26:0] oneface_dout4,
     output[26:0] oneface_dout5,
     output[26:0] oneface_dout6,
-    output out_en // å› ä¸ºç»„åˆé€»è¾‘å¤ªå¤šï¼Œè¾“å‡ºè¦å»¶è¿Ÿå¤‡å¥½
+    output out_en // ????????????¨¦¢ã?¨¨?¡®?¡è??¡è????¨¨?¡°???¨¨?????¨¨???¡è????
     );
     
     reg[26:0] oneface_dout_reg=0,
@@ -49,7 +49,13 @@ module image2magicalhsv (
     assign oneface_dout4 = oneface_dout4_reg;
     assign oneface_dout5 = oneface_dout5_reg;
     assign oneface_dout6 = oneface_dout6_reg;
-    always @ * 
+    always @ * begin 
+        oneface_dout1_reg=oneface_dout1_reg;
+        oneface_dout2_reg=oneface_dout2_reg;
+        oneface_dout3_reg=oneface_dout3_reg;
+        oneface_dout4_reg=oneface_dout4_reg;
+        oneface_dout5_reg=oneface_dout5_reg;
+        oneface_dout6_reg=oneface_dout6_reg;
         case(face_select)
             3'b001: oneface_dout1_reg=oneface_dout_reg;
             3'b010: oneface_dout2_reg=oneface_dout_reg;
@@ -66,8 +72,9 @@ module image2magicalhsv (
                 oneface_dout6_reg=oneface_dout6_reg;
             end
         endcase
+    end
 
-    // é‡‡æ ·åæ ‡ 
+    // ¨¦????¡¤?????? 
     localparam[11:0]h_zuoshang=40,
                     h_zhongshang=120, 
                     h_youshang=200,     
@@ -89,22 +96,22 @@ module image2magicalhsv (
                     
     reg[2:0]thiscolor_code=0; // pixal's color code
 
-    // çŠ???æœºè®¾è®¡è¦æ±?:
-    // 1. dout[2:0] = thiscoler_code,çŠ???èµ??  9
+    // ????????¨¨??¨¨??¨¨???¡À?:
+    // 1. dout[2:0] = thiscoler_code,?????¨¨???  9
     // 2. out_en
-    // 3. æŒ‡å®šåæ ‡?? 11
-    // 4. å»¶è¿Ÿèµ??? 10
+    // 3. ?????????????? 11
+    // 4. ???¨¨??¨¨???? 10
     reg[15:0] din_reg=0; // din_reg
-    reg din_signal_reg=0; // 1ä¸ºdin => din_reg
+    reg din_signal_reg=0; // 1???din => din_reg
     always @ (negedge wclk)
         if(din_signal_reg)
             din_reg <= din;
     reg out_en_reg=0;
-    assign out_en = out_en_reg; // è¾“å‡ºä½¿èƒ½ï¼Œåœ¨å»¶è¿Ÿèµ???æœŸé—´ä¸?0,
-    reg[3:0] delay_updata_position_reg=0; // è¦å»¶è¿Ÿèµ‹å€¼çš„ä½ç½®ç¼–å·ï¼Œä»Ž1?å§‹è®¡?
-    parameter delay_T = 40; // å»¶è¿Ÿ40ä¸ªwclk
-    reg[5:0] delay_count = 0; // å»¶è¿Ÿè®¡æ•°?
-    wire delay_finish_signal; // å»¶è¿Ÿå®Œæ¯•ä¿¡å·
+    assign out_en = out_en_reg; // ¨¨?¡°??????¨¨???????¡§???¨¨??¨¨???????¨¦¡ª????0,
+    reg[3:0] delay_updata_position_reg=0; // ¨¨?????¨¨??¨¨???¢ã????????????¨C??¡¤??????1??¡ì?¨¨???
+    parameter delay_T = 40; // ???¨¨??40???wclk
+    reg[5:0] delay_count = 0; // ???¨¨??¨¨????¡ã?
+    wire delay_finish_signal; // ???¨¨?????????????¡¤
     assign delay_finish_signal=delay_count==delay_T?1'b1:1'b0;
     always @ (posedge wclk)
         if(out_en_reg==0)
@@ -123,6 +130,7 @@ module image2magicalhsv (
         cur_s <= next_s;
     always @ * begin
         next_s = cur_s;
+        delay_updata_position_reg = delay_updata_position_reg;
         case(cur_s)
             s_pixalDetect: begin
                 if(H_cnt==h_zuoshang&&V_cnt==v_zuoshang) begin
@@ -177,12 +185,16 @@ module image2magicalhsv (
                 end 
             end
             s_dGenDelay:begin
-                din_signal_reg=0;                
+                din_signal_reg=0;
+                out_en_reg=0;            
                 if(delay_finish_signal)
                     next_s = s_dataUpdata;
             end
             s_dataUpdata:begin
                 next_s = s_reset;
+                din_signal_reg=0;
+                out_en_reg=0;
+                oneface_dout_reg = oneface_dout_reg;
                 case(delay_updata_position_reg) 
                     4'b0001:oneface_dout_reg[2:0]=thiscolor_code;
                     4'b0010:oneface_dout_reg[5:3]=thiscolor_code;
@@ -198,6 +210,7 @@ module image2magicalhsv (
             end
             s_reset:begin
                 next_s = s_pixalDetect;
+                din_signal_reg=0;
                 delay_updata_position_reg = 4'b0000;//none
                 out_en_reg = 1;               
             end
@@ -234,7 +247,7 @@ module image2magicalhsv (
             h_reg = 240+60*rminusg/maxminusmin;
     end
 
-    // h_of_hsv2color   whiteï¼šs=0 v=1
+    // h_of_hsv2color   white???s=0 v=1
     localparam[8:0]red=0,green=120,blue=240,
              orange=30,yellow=60;
     wire white;
