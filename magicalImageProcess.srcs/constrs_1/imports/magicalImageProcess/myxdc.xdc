@@ -207,3 +207,8 @@ set_property IOSTANDARD LVCMOS33 [get_ports load_image_data_button]
 #set_side_data_button
 set_property PACKAGE_PIN  [get_ports set_side_data_button]
 set_property IOSTANDARD LVCMOS33 [get_ports set_side_data_button]
+
+
+#done_top
+set_property PACKAGE_PIN  [get_ports done_top]
+set_property IOSTANDARD LVCMOS33 [get_ports done_top]

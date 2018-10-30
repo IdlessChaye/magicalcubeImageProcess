@@ -3,6 +3,8 @@ module image_out_sram (
     input rst, // high_power work
 
     input enable, // high_power work
+    input continue,
+    output get_data,
 
     output reg selec_out_sram,
     output reg write_out_sram,
@@ -24,10 +26,7 @@ parameter s_done           = 4'b0110;
 reg [3:0] status = s_idle;
 
 
-
-
-
-always@(posedge pclk) begin
+always@(posedge wclk) begin
     if(rst) begin
         R_reg <= 0;
         G_reg <= 0;

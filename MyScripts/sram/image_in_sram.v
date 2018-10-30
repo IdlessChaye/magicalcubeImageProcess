@@ -2,7 +2,7 @@ module image_in_sram (
     input wclk, 
     input rst, // high_power work
 
-    input enable_button, // posedge work
+    input enable,
 
     input[16:0] cam_addr,
     input[15:0] cam_data,
@@ -17,23 +17,20 @@ module image_in_sram (
     output reg done
 );
 
-reg enable = 0;
-always@(posedge enable_button) begin
-    enable = 1'b1;
-end
     
 parameter address_count_max = 240 * 320 - 1; // 76800 - 1
 
 
 parameter s_idle           = 4'b0000;
 parameter s_init           = 4'b0001;
-parameter s_write          = 4'b0011;
-parameter s_ready          = 4'b0010;
+parameter s_write1         = 4'b0011;
+parameter s_write2         = 4'b0010;
 parameter s_done           = 4'b0110;
+parameter s_ready          = 4'b0111;
 reg [3:0] status = s_idle;
 
 
-always@(posedge pclk) begin
+always@(posedge wclk) begin
     if(rst) begin
         selec_in_sram <= 0;
         write_in_sram <= 0;
@@ -47,7 +44,8 @@ always@(posedge pclk) begin
         case(status) 
             s_idle: begin
                 done <= 0;            
-                if(enable && cam_addr == 0) begin
+
+                if(enable) begin
                     status <= s_init;
                 end else begin
                     selec_in_sram <= 0;
@@ -60,7 +58,11 @@ always@(posedge pclk) begin
                 end
             end
             s_init: begin
-                enable <= 0;
+                if(cam_addr == 0) begin
+                    status <= s_write1;
+                end
+            end
+            s_write1: begin
                 if(cam_we) begin
                     data_wr_in_in_sram <= cam_data;
                     addr_wr_in_sram <= cam_addr;
@@ -77,17 +79,17 @@ always@(posedge pclk) begin
                     write_in_sram <= 1;
                     read_in_sram  <= 0;
 
-                    status <= s_write;    
+                    status <= s_write2;    
                 end else begin
                     selec_in_sram <= 0;
                     write_in_sram <= 0;
                     read_in_sram <= 0;
 
-                    status <= s_init;
-                end
+                    status <= s_write1;
+                end                
             end
-            s_write: begin
-                status <= s_init;
+            s_write2: begin
+                status <= s_write1;
             end
             s_done: begin
                 done <= 1'b1;

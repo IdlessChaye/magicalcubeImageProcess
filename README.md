@@ -31,5 +31,5 @@ GPLv2.0
 
 #### 18.10.30
 
-1. Architecture is ready.
+1. Architecture is ready
 2. finish image_in_sram.v

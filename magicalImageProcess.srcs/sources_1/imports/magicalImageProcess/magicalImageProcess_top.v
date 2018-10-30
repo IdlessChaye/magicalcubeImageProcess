@@ -27,7 +27,9 @@ module magicalImageProcess_top (
 
     output[3:0] en0,en1,
     output[7:0] sseg0,sseg1,
-    output signal0
+    output signal0,
+
+    output reg done_top
     );
 
 
@@ -60,7 +62,7 @@ module magicalImageProcess_top (
 
     wire [16:0]cam_ov7670_ov7725_0_addr;
     wire [15:0]cam_ov7670_ov7725_0_dout;
-    wire cam_ov7670_ov7725_0_wclk;
+    wire cam_ov7670_ov7725_0_wclk; // 50MHz
     wire cam_ov7670_ov7725_0_we;
     wire[9:0] V_cnt,H_cnt;
 
@@ -171,12 +173,22 @@ module magicalImageProcess_top (
         .fangdou_button(fangdou_load_image_data_button)
     );
 
+reg enable_in_sram_button = 0;
+always@(posedge fangdou_load_image_data_button) begin
+    enable_in_sram_button = 1'b1;
+end
+
 
     fangdou fangdou_7 (
         .clk(clk_in),
         .button(set_side_data_button),
         .fangdou_button(fangdou_set_side_data_button)
     );
+
+reg enable_set_side_data_button = 0;
+always@(posedge fangdou_set_side_data_button) begin
+    enable_set_side_data_button = 1'b1;
+end
 
 
     // need modified
@@ -218,13 +230,16 @@ module magicalImageProcess_top (
     parameter s_init           = 4'b0001;
     parameter s_write          = 4'b0011;
     parameter s_read           = 4'b0010;
-    parameter s_ready          = 4'b0110;
-    parameter s_done           = 4'b0111;
+    parameter s_detect         = 4'b0110;
+    parameter s_hsv            = 4'b0111;
+    parameter s_color_coding   = 4'b1111;
+    parameter s_oneside_data   = 4'b1110;
+    parameter s_done           = 4'b1100;
+    parameter s_ready          = 4'b1000;
     reg [3:0] status = s_idle;
 
 
 
-    wire enable_in_sram;
     wire selec_in_sram;
     wire write_in_sram;
     wire read_in_sram;
@@ -235,7 +250,7 @@ module magicalImageProcess_top (
         .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
-        .enable(fangdou_load_image_data_button),
+        .enable(enable_in_sram_button),
 
         .cam_addr(cam_ov7670_ov7725_0_addr),
         .cam_data(cam_ov7670_ov7725_0_dout),
@@ -252,7 +267,8 @@ module magicalImageProcess_top (
 
 
 
-    wire enable_out_sram;
+    reg continue_out_sram
+    wire get_data_out_sram;
     wire selec_out_sram;
     wire write_out_sram;
     wire read_out_sram;
@@ -264,7 +280,9 @@ module magicalImageProcess_top (
         .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
-        .enable(enable_out_sram),
+        .enable(enable_set_side_data_button),
+        .continue(continue_out_sram),
+        .get_data(get_data_out_sram),
 
         .selec_out_sram(selec_out_sram),
         .write_out_sram(write_out_sram),
@@ -276,7 +294,6 @@ module magicalImageProcess_top (
 
         .done(done_out_sram)
     );
-
 
 
     wire selec;
@@ -304,12 +321,6 @@ module magicalImageProcess_top (
         .sram_ub_r(sram_ub_r),
         .sram_lb_r(sram_lb_r)
     );
-
-    assign selec = status == s_write ? selec_in_sram : status == s_read ? selec_out_sram : 1'b0;
-    assign write = status == s_write ? write_in_sram : write_out_sram;
-    assign read  = status == s_write ? read_in_sram  : read_out_sram;
-    assign data_wr_in = status == s_write ? data_wr_in_in_sram : 16'bz;
-    assign addr_wr    = status == s_write ? addr_wr_in_sram    : addr_wr_out_sram;
 
 
 
@@ -384,6 +395,73 @@ module magicalImageProcess_top (
         .done(done_data)
     );
 
+
+
+always@(posedge cam_ov7670_ov7725_0_wclk) begin
+    if(rst_1) begin
+        done_top <= 0;
+
+        status <= s_idle;
+    end else begin
+        case(status)
+            s_idle: begin
+                done_top <= 0;
+
+                if(enable_in_sram_button) begin
+                    status <= s_write;
+                end else if(enable_set_side_data_button) begin
+                    status <= s_read;
+                end
+            end
+            s_init: begin
+                
+            end
+            s_write: begin
+                enable_in_sram_button <= 0;
+                if(done_in_sram) begin
+                    status <= s_done;
+                end
+            end
+            s_read: begin
+                enable_set_side_data_button <= 0;
+                if(done_out_sram) begin
+                    status <= s_done;
+                end else if(get_data)
+
+            end
+            s_detect: begin
+                
+            end
+            s_hsv: begin
+                
+            end
+            s_color_coding: begin
+                
+            end
+            s_oneside_data: begin
+                
+            end
+            s_done: begin
+                done_top <= 1'b1;
+
+                status <= s_ready;
+            end
+            s_ready: begin
+                status <= s_idle;
+            end            
+            default: begin
+                status <= s_idle;
+            end
+        endcase
+    end
+end
+
+
+assign selec = status == s_write ? selec_in_sram : status == s_read ? selec_out_sram : 1'b0;
+assign write = status == s_write ? write_in_sram : write_out_sram;
+assign read  = status == s_write ? read_in_sram  : read_out_sram;
+assign data_wr_in = status == s_write ? data_wr_in_in_sram : 16'bz;
+assign addr_wr    = status == s_write ? addr_wr_in_sram    : addr_wr_out_sram;
 
 
 
