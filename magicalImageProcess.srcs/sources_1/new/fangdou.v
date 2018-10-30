@@ -27,7 +27,7 @@ module fangdou(
     
 	reg go = 0;
 
-	localparam N = 4;
+	localparam N = 20;
 	reg[N-1:0] count=0;
 	always @(posedge clk) begin
 		if (go) begin

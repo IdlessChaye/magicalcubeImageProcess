@@ -1,49 +1,43 @@
-set_property PACKAGE_PIN P17 [get_ports clk_in1]
-set_property IOSTANDARD LVCMOS33 [get_ports clk_in1]
+set_property PACKAGE_PIN B16 [get_ports sck]
+set_property PACKAGE_PIN B17 [get_ports miso]
+set_property PACKAGE_PIN A16 [get_ports reset_oled]
+set_property PACKAGE_PIN A14 [get_ports dc]
+set_property PACKAGE_PIN P17 [get_ports clk]
+set_property PACKAGE_PIN A15 [get_ports sck_reg]
+set_property PACKAGE_PIN A18 [get_ports rxd]
 
-set_property PACKAGE_PIN R1 [get_ports rst]
-set_property IOSTANDARD LVCMOS33 [get_ports rst]
+set_property PACKAGE_PIN R1 [get_ports keepgoing]
+set_property IOSTANDARD LVCMOS33 [get_ports keepgoing]
+set_property PACKAGE_PIN G4 [get_ports showdelay]
+set_property IOSTANDARD LVCMOS33 [get_ports showdelay]
+set_property PACKAGE_PIN N4 [get_ports addr_reset]
+set_property IOSTANDARD LVCMOS33 [get_ports addr_reset]
 
-
-#OV7725 Data signals
-set_property PACKAGE_PIN A18 [get_ports {OV7725_D[7]}]
-set_property PACKAGE_PIN B18 [get_ports {OV7725_D[6]}]
-set_property PACKAGE_PIN A14 [get_ports {OV7725_D[5]}]
-set_property PACKAGE_PIN A13 [get_ports {OV7725_D[4]}]
-set_property PACKAGE_PIN A16 [get_ports {OV7725_D[3]}]
-set_property PACKAGE_PIN A15 [get_ports {OV7725_D[2]}]
-set_property PACKAGE_PIN B17 [get_ports {OV7725_D[1]}]
-set_property PACKAGE_PIN B16 [get_ports {OV7725_D[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[7]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[6]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[5]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[4]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[3]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {OV7725_D[0]}]
-
-#OV7725 Control signals
-set_property PACKAGE_PIN F13 [get_ports OV7725_XCLK]
-set_property PACKAGE_PIN F14 [get_ports OV7725_PCLK]
-set_property PACKAGE_PIN B13 [get_ports OV7725_HREF]
-set_property PACKAGE_PIN B14 [get_ports OV7725_VSYNC]
-set_property PACKAGE_PIN D14 [get_ports OV7725_SIOD]
-set_property PACKAGE_PIN C14 [get_ports OV7725_SIOC]
-set_property IOSTANDARD LVCMOS33 [get_ports OV7725_HREF]
-set_property IOSTANDARD LVCMOS33 [get_ports OV7725_PCLK]
-set_property IOSTANDARD LVCMOS33 [get_ports OV7725_SIOC]
-set_property IOSTANDARD LVCMOS33 [get_ports OV7725_SIOD]
-set_property IOSTANDARD LVCMOS33 [get_ports OV7725_VSYNC]
-set_property IOSTANDARD LVCMOS33 [get_ports OV7725_XCLK]
-#IIC port"OV7725_SIOD" must be pulled up
-set_property PULLUP true [get_ports OV7725_SIOD]
-#Whatsthis
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets OV7725_PCLK]
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets OV7725_VSYNC]
+set_property IOSTANDARD LVCMOS33 [get_ports sck]
+set_property IOSTANDARD LVCMOS33 [get_ports miso]
+set_property IOSTANDARD LVCMOS33 [get_ports reset_oled]
+set_property IOSTANDARD LVCMOS33 [get_ports dc]
+set_property IOSTANDARD LVCMOS33 [get_ports clk]
+set_property IOSTANDARD LVCMOS33 [get_ports sck_reg]
+set_property IOSTANDARD LVCMOS33 [get_ports rxd]
 
 
-#super_stop_watch
+
+create_pblock {pblock_cur_st[3]_i_4}
+resize_pblock [get_pblocks {pblock_cur_st[3]_i_4}] -add {SLICE_X48Y60:SLICE_X51Y65}
+create_pblock pblock_oled_clear
+add_cells_to_pblock [get_pblocks pblock_oled_clear] [get_cells -quiet [list oled_clear]]
+resize_pblock [get_pblocks pblock_oled_clear] -add {SLICE_X34Y147:SLICE_X47Y148}
+
+
+set_property PACKAGE_PIN K2 [get_ports st_init]
+set_property PACKAGE_PIN J2 [get_ports st_clear]
+set_property PACKAGE_PIN J3 [get_ports st_wait]
+set_property PACKAGE_PIN H4 [get_ports st_write]
+set_property IOSTANDARD LVCMOS33 [get_ports st_init]
+set_property IOSTANDARD LVCMOS33 [get_ports st_clear]
+set_property IOSTANDARD LVCMOS33 [get_ports st_wait]
+set_property IOSTANDARD LVCMOS33 [get_ports st_write]
 set_property PACKAGE_PIN D4 [get_ports {sseg0[0]}]
 set_property PACKAGE_PIN E3 [get_ports {sseg0[1]}]
 set_property PACKAGE_PIN D3 [get_ports {sseg0[2]}]
@@ -68,14 +62,19 @@ set_property PACKAGE_PIN H1 [get_ports {en1[0]}]
 set_property PACKAGE_PIN C1 [get_ports {en1[1]}]
 set_property PACKAGE_PIN C2 [get_ports {en1[2]}]
 set_property PACKAGE_PIN G2 [get_ports {en1[3]}]
+
+
+
 set_property IOSTANDARD LVCMOS33 [get_ports {en1[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {en1[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {en1[2]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {en1[3]}]
+
 set_property IOSTANDARD LVCMOS33 [get_ports {en0[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {en0[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {en0[2]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {en0[3]}]
+
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg1[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg1[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg1[2]}]
@@ -84,6 +83,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sseg1[4]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg1[5]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg1[6]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg1[7]}]
+
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg0[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg0[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg0[2]}]
@@ -94,27 +94,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sseg0[6]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sseg0[7]}]
 
 
-#debug single signal
-set_property PACKAGE_PIN F6 [get_ports signal0]
-set_property IOSTANDARD LVCMOS33 [get_ports signal0]
-
-
-#side_select_signals
-set_property PACKAGE_PIN K2 [get_ports {side_select_signals[0]}]
-set_property PACKAGE_PIN J2 [get_ports {side_select_signals[1]}]
-set_property PACKAGE_PIN J3 [get_ports {side_select_signals[2]}]
-set_property PACKAGE_PIN H4 [get_ports {side_select_signals[3]}]
-set_property PACKAGE_PIN J4 [get_ports {side_select_signals[4]}]
-set_property PACKAGE_PIN G3 [get_ports {side_select_signals[5]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[3]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[4]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[5]}]
-
-
-#sram
 set_property PACKAGE_PIN V15 [get_ports sram_ce_r]
 set_property PACKAGE_PIN R10 [get_ports sram_lb_r]
 set_property PACKAGE_PIN T16 [get_ports sram_oe_r]
@@ -199,11 +178,6 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[0]}]
 
 
-#load_image_data_button
-set_property PACKAGE_PIN  [get_ports load_image_data_button]
-set_property IOSTANDARD LVCMOS33 [get_ports load_image_data_button]
 
 
-#set_side_data_button
-set_property PACKAGE_PIN  [get_ports set_side_data_button]
-set_property IOSTANDARD LVCMOS33 [get_ports set_side_data_button]
+
