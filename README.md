@@ -28,3 +28,8 @@ GPLv2.0
 1. image2magicalhsv.v is also buggy
 2. finish div_rill_clk.v and rgb2hsv.v, they work well
 3. the top file should be modified into sequential logic design 
+
+#### 18.10.30
+
+1. Architecture is ready.
+2. finish image_in_sram.v

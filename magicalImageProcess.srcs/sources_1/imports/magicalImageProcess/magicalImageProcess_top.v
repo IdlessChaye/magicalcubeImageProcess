@@ -235,7 +235,7 @@ module magicalImageProcess_top (
         .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
-        .enable(enable_in_sram),
+        .enable(fangdou_load_image_data_button),
 
         .cam_addr(cam_ov7670_ov7725_0_addr),
         .cam_data(cam_ov7670_ov7725_0_dout),
