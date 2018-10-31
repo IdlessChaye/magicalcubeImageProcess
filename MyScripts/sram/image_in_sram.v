@@ -44,16 +44,15 @@ always@(posedge wclk) begin
         case(status) 
             s_idle: begin
                 done <= 0;            
+                selec_in_sram <= 0;
+                write_in_sram <= 0;
+                read_in_sram <= 0;
+                data_wr_in_in_sram <= 0;
+                addr_wr_in_sram <= 0;
 
                 if(enable) begin
                     status <= s_init;
                 end else begin
-                    selec_in_sram <= 0;
-                    write_in_sram <= 0;
-                    read_in_sram <= 0;
-                    data_wr_in_in_sram <= 0;
-                    addr_wr_in_sram <= 0;
-
                     status <= s_idle;
                 end
             end

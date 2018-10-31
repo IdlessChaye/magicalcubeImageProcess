@@ -33,3 +33,7 @@ GPLv2.0
 
 1. Architecture is ready
 2. finish image_in_sram.v
+
+#### 18.10.31
+
+1. finish image_out_sramdetect.v

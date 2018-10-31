@@ -229,8 +229,7 @@ end
     parameter s_idle           = 4'b0000;
     parameter s_init           = 4'b0001;
     parameter s_write          = 4'b0011;
-    parameter s_read           = 4'b0010;
-    parameter s_detect         = 4'b0110;
+    parameter s_sramdetect     = 4'b0010;
     parameter s_hsv            = 4'b0111;
     parameter s_color_coding   = 4'b1111;
     parameter s_oneside_data   = 4'b1110;
@@ -268,30 +267,32 @@ end
 
 
     reg continue_out_sram
-    wire get_data_out_sram;
     wire selec_out_sram;
     wire write_out_sram;
     wire read_out_sram;
     wire[18:0] addr_wr_out_sram;
     wire[15:0] data_wr_out_out_sram;
-    wire[15:0] cam_dout;
+    wire[15:0] rgb565;
+    wire[8:0] position_coding;
+    wire find_out_sram;
     wire done_out_sram;
-    image_out_sram image_out_sram_0 (
+    image_out_sramdetect image_out_sramdetect_0 (
         .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
         .enable(enable_set_side_data_button),
         .continue(continue_out_sram),
-        .get_data(get_data_out_sram),
 
         .selec_out_sram(selec_out_sram),
         .write_out_sram(write_out_sram),
         .read_out_sram(read_out_sram),
+        .addr_wr_out_sram(addr_wr_out_sram),        
         .data_wr_out_out_sram(data_wr_out_out_sram),
-        .addr_wr_out_sram(addr_wr_out_sram),
 
-        .cam_dout(cam_dout),
+        .rgb565(rgb565),
+        .position_coding(position_coding),
 
+        .find(find_out_sram),
         .done(done_out_sram)
     );
 
@@ -322,28 +323,6 @@ end
         .sram_lb_r(sram_lb_r)
     );
 
-
-
-    wire enable_detect;
-    wire[15:0] rgb565;
-    wire[8:0] position_coding;
-    wire find;
-    wire done_detect;
-    pixel_detect pixel_detect_0 (
-        .clk(cam_ov7670_ov7725_0_wclk),
-        .rst(rst_1),
-
-        .enable(enable_detect),
-
-        .data_wr_out(data_wr_out_out_sram),
-        .addr_wr_out(addr_wr_out_sram),
-        .rgb565(rgb565),
-        .position_coding(position_coding),
-
-        .find(find),
-
-        .done(done_detect)
-    );
 
 
 
@@ -396,41 +375,41 @@ end
     );
 
 
-
+reg last_little_turn;
 always@(posedge cam_ov7670_ov7725_0_wclk) begin
     if(rst_1) begin
         done_top <= 0;
-
+        last_little_turn <= 0;
         status <= s_idle;
     end else begin
         case(status)
             s_idle: begin
                 done_top <= 0;
-
+                last_little_turn <= 0;
                 if(enable_in_sram_button) begin
+                    enable_in_sram_button <= 0;
                     status <= s_write;
                 end else if(enable_set_side_data_button) begin
-                    status <= s_read;
+                    enable_set_side_data_button <= 0;
+                    status <= s_sramdetect;
+                end else begin
+                    status <= s_idle;
                 end
             end
-            s_init: begin
-                
-            end
             s_write: begin
-                enable_in_sram_button <= 0;
                 if(done_in_sram) begin
                     status <= s_done;
                 end
             end
-            s_read: begin
-                enable_set_side_data_button <= 0;
-                if(done_out_sram) begin
-                    status <= s_done;
-                end else if(get_data)
-
-            end
-            s_detect: begin
-                
+            s_sramdetect: begin
+                if(find_out_sram) begin
+                    if(done_out_sram) begin
+                        last_little_turn <= 1;
+                    end
+                    status <= s_hsv;                    
+                else begin
+                    status <= s_sramdetect;
+                end
             end
             s_hsv: begin
                 
@@ -442,8 +421,7 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 
             end
             s_done: begin
-                done_top <= 1'b1;
-
+                done_top <= 1;
                 status <= s_ready;
             end
             s_ready: begin
@@ -457,12 +435,12 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
 end
 
 
-assign selec = status == s_write ? selec_in_sram : status == s_read ? selec_out_sram : 1'b0;
-assign write = status == s_write ? write_in_sram : write_out_sram;
-assign read  = status == s_write ? read_in_sram  : read_out_sram;
+assign selec = status == s_write ? selec_in_sram : status == s_sramdetect ? selec_out_sram : 1'b0;
+assign write = status == s_write ? write_in_sram : status == s_sramdetect ? write_out_sram : 1'b0;
+assign read  = status == s_write ? read_in_sram  : status == s_sramdetect ? read_out_sram  : 1'b0;
 assign data_wr_in = status == s_write ? data_wr_in_in_sram : 16'bz;
-assign addr_wr    = status == s_write ? addr_wr_in_sram    : addr_wr_out_sram;
-
+assign addr_wr    = status == s_write ? addr_wr_in_sram    : status == s_sramdetect ? addr_wr_out_sram : 19'bz;
+assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
 
 
     super_stop_watch_test super_stop_watch_test_0 (

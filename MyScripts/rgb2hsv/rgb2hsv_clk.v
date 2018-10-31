@@ -175,7 +175,7 @@ always@(posedge pclk) begin
                     end
                 end
 
-                enable_div <= 1'b1;
+                enable_div <= 1;
 
                 status <= s_div_work;
             end
