@@ -213,15 +213,15 @@ end
 
 
 
-    parameter s_idle           = 4'b0000;
-    parameter s_init           = 4'b0001;
-    parameter s_write          = 4'b0011;
-    parameter s_sramdetect     = 4'b0010;
-    parameter s_hsv            = 4'b0111;
-    parameter s_color_coding   = 4'b1111;
-    parameter s_oneside_data   = 4'b1110;
-    parameter s_done           = 4'b1100;
-    parameter s_ready          = 4'b1000;
+    localparam s_idle           = 4'b0000;
+    localparam s_init           = 4'b0001;
+    localparam s_write          = 4'b0011;
+    localparam s_sramdetect     = 4'b0010;
+    localparam s_hsv            = 4'b0111;
+    localparam s_color_coding   = 4'b1111;
+    localparam s_oneside_data   = 4'b1110;
+    localparam s_done           = 4'b1100;
+    localparam s_ready          = 4'b1000;
     reg [3:0] status = s_idle;
 
 
@@ -317,7 +317,7 @@ end
 
 
     wire enable_rgb2hsv;
-    wire[23:0] hsv24;
+    wire[24:0] hsv25;
     wire done_rgb2hsv;
     assign enable_rgb2hsv = find_out_sram;
     rgb2hsv_clk rgb2hsv_clk_0 (
@@ -326,7 +326,7 @@ end
 
         .enable(enable_rgb2hsv), // high_power work
         .RGB24({rgb565[15:11],3'b000,rgb565[10:5],2'b00,rgb565[4:0],3'b000}),
-        .HSV24(hsv24),
+        .HSV25(hsv25),
 
         .hsv_done(done_rgb2hsv)
     );
@@ -342,7 +342,7 @@ end
 
         .enable(enable_color_coding),
 
-        .hsv24(hsv24),
+        .hsv25(hsv25),
         .color_coding(color_coding),
 
         .done(done_color_coding)

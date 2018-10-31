@@ -18,15 +18,15 @@ module image_in_sram (
 );
 
     
-parameter address_count_max = 240 * 320 - 1; // 76800 - 1
+localparam address_count_max = 240 * 320 - 1; // 76800 - 1
 
 
-parameter s_idle           = 4'b0000;
-parameter s_init           = 4'b0001;
-parameter s_write1         = 4'b0011;
-parameter s_write2         = 4'b0010;
-parameter s_done           = 4'b0110;
-parameter s_ready          = 4'b0111;
+localparam s_idle           = 4'b0000;
+localparam s_init           = 4'b0001;
+localparam s_write1         = 4'b0011;
+localparam s_write2         = 4'b0010;
+localparam s_done           = 4'b0110;
+localparam s_ready          = 4'b0111;
 reg [3:0] status = s_idle;
 
 

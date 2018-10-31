@@ -30,12 +30,12 @@ reg[63:0] temp_b;
 reg [31:0] i;
 
 
-parameter s_idle =  4'b0000;
-parameter s_init =  4'b0001;
-parameter s_calc1 = 4'b0011;
-parameter s_calc2 = 4'b0010;
-parameter s_ready = 4'b0110;
-parameter s_done =  4'b0111;
+localparam s_idle =  4'b0000;
+localparam s_init =  4'b0001;
+localparam s_calc1 = 4'b0011;
+localparam s_calc2 = 4'b0010;
+localparam s_ready = 4'b0110;
+localparam s_done =  4'b0111;
 reg [3:0] status = s_idle;
 
 always @(posedge clk) begin

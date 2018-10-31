@@ -12,7 +12,7 @@ module rgb2hsv_clk (
 
     input enable, // high_power work
     input[23:0] RGB24,
-    output[23:0] HSV24,
+    output[24:0] HSV25,
 
     output reg hsv_done
 );
@@ -23,10 +23,11 @@ assign Green = RGB24[15:8];
 assign Blue = RGB24[7:0];
 reg[7:0] R_reg,G_reg,B_reg;
 
-reg[7:0] Hue,Saturation,Value;
-assign HSV24[23:16] = Hue;
-assign HSV24[15:8] = Saturation;
-assign HSV24[7:0] = Value;
+reg[8:0] Hue;
+reg[7:0] Saturation,Value;
+assign HSV25[24:16] = Hue;
+assign HSV25[15:8] = Saturation;
+assign HSV25[7:0] = Value;
 
 reg[7:0] max,min;
 
@@ -49,11 +50,11 @@ assign s_quotient = yshang_s[16:0];
 
 
 
-parameter s_idle           = 3'b000;
-parameter s_init           = 3'b001;
-parameter s_div_work       = 3'b011;
-parameter s_ready          = 3'b010;
-parameter s_done           = 3'b110;
+localparam s_idle           = 3'b000;
+localparam s_init           = 3'b001;
+localparam s_div_work       = 3'b011;
+localparam s_ready          = 3'b010;
+localparam s_done           = 3'b110;
 reg [2:0] status = s_idle;
 
 always@(posedge pclk) begin
@@ -191,7 +192,7 @@ always@(posedge pclk) begin
                 if(sign_flag == 0) 
                     Hue <= (h_quotient + h_add);
                 else
-                    Hue <= (h_add - h_quotient);
+                    Hue <= (h_add - h_quotient); 
                 Saturation <= s_quotient;
                 Value <= v;
                 hsv_done <= 1'b1;   

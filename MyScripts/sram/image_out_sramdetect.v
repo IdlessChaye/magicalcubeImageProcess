@@ -30,8 +30,8 @@ module image_out_sramdetect (
 reg[15:0] data_wr_out_reg;
 
 reg[9:0] V_cnt,H_cnt;
-parameter H_cnt_max = 320;
-parameter V_cnt_max = 240;
+localparam H_cnt_max = 320;
+localparam V_cnt_max = 240;
 
 
 
@@ -55,14 +55,14 @@ localparam[9:0] v_zuoshang=40,
                 v_youxia=200;
 
 
-parameter s_idle           = 4'b0000;
-parameter s_init_enable    = 4'b0001;
-parameter s_init_notfind   = 4'b0011;
-parameter s_read           = 4'b0111;
-parameter s_detect         = 4'b1111;
-parameter s_find           = 4'b1110;
-parameter s_done           = 4'b1100;
-parameter s_ready          = 4'b1000;
+localparam s_idle           = 4'b0000;
+localparam s_init_enable    = 4'b0001;
+localparam s_init_notfind   = 4'b0011;
+localparam s_read           = 4'b0111;
+localparam s_detect         = 4'b1111;
+localparam s_find           = 4'b1110;
+localparam s_done           = 4'b1100;
+localparam s_ready          = 4'b1000;
 reg [3:0] status = s_idle;
 
 
