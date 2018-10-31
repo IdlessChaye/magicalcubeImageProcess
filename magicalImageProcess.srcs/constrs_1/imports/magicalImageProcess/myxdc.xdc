@@ -100,12 +100,12 @@ set_property IOSTANDARD LVCMOS33 [get_ports signal0]
 
 
 #side_select_signals
-set_property PACKAGE_PIN K2 [get_ports {side_select_signals[0]}]
-set_property PACKAGE_PIN J2 [get_ports {side_select_signals[1]}]
-set_property PACKAGE_PIN J3 [get_ports {side_select_signals[2]}]
-set_property PACKAGE_PIN H4 [get_ports {side_select_signals[3]}]
-set_property PACKAGE_PIN J4 [get_ports {side_select_signals[4]}]
-set_property PACKAGE_PIN G3 [get_ports {side_select_signals[5]}]
+set_property PACKAGE_PIN M4 [get_ports {side_select_signals[0]}]
+set_property PACKAGE_PIN R2 [get_ports {side_select_signals[1]}]
+set_property PACKAGE_PIN P2 [get_ports {side_select_signals[2]}]
+set_property PACKAGE_PIN P3 [get_ports {side_select_signals[3]}]
+set_property PACKAGE_PIN P4 [get_ports {side_select_signals[4]}]
+set_property PACKAGE_PIN P5 [get_ports {side_select_signals[5]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {side_select_signals[2]}]
@@ -199,16 +199,16 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[0]}]
 
 
-#load_image_data_button
-set_property PACKAGE_PIN  [get_ports load_image_data_button]
+#load_image_data_button S0 S1
+set_property PACKAGE_PIN R11 [get_ports load_image_data_button]
 set_property IOSTANDARD LVCMOS33 [get_ports load_image_data_button]
 
 
 #set_side_data_button
-set_property PACKAGE_PIN  [get_ports set_side_data_button]
+set_property PACKAGE_PIN R17 [get_ports set_side_data_button]
 set_property IOSTANDARD LVCMOS33 [get_ports set_side_data_button]
 
 
 #done_top
-set_property PACKAGE_PIN  [get_ports done_top]
+set_property PACKAGE_PIN K2 [get_ports done_top]
 set_property IOSTANDARD LVCMOS33 [get_ports done_top]

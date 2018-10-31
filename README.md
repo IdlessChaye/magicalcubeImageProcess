@@ -39,3 +39,4 @@ GPLv2.0
 1. finish image_out_sramdetect.v
 2. link rgb2hsv_clk module to the top state machine
 3. finish hsv2color_coding.v
+4. finish magic_side_data_set.v
