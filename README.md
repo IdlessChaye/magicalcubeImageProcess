@@ -37,3 +37,4 @@ GPLv2.0
 #### 18.10.31
 
 1. finish image_out_sramdetect.v
+2. link rgb2hsv_clk module to the top state machine
