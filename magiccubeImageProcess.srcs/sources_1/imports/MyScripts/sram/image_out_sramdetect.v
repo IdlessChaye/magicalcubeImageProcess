@@ -192,7 +192,7 @@ always@(posedge wclk) begin
                     done <= 1; // the last case, find and done are sync
 
                     status <= s_ready; // skip s_done
-                else begin
+                end else begin
                     status <= s_init_enable; // wait for continue, next little xunhuan
                 end
             end

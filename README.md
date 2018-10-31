@@ -40,3 +40,4 @@ GPLv2.0
 2. link rgb2hsv_clk module to the top state machine
 3. finish hsv2color_coding.v
 4. finish magic_side_data_set.v
+5. this project is synthesized and implemented, but not tested.

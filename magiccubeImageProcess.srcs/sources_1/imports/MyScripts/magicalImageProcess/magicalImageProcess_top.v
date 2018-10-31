@@ -125,37 +125,37 @@ module magicalImageProcess_top (
 
 
     fangdou fangdou_0(
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(side_select_signals[0]),
         .fangdou_button(fangdou_side_select_signals[0])
     );
 
     fangdou fangdou_1(
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(side_select_signals[1]),
         .fangdou_button(fangdou_side_select_signals[1])
     );    
 
     fangdou fangdou_2(
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(side_select_signals[2]),
         .fangdou_button(fangdou_side_select_signals[2])
     );    
 
     fangdou fangdou_3(
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(side_select_signals[3]),
         .fangdou_button(fangdou_side_select_signals[3])
     );
 
     fangdou fangdou_4(
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(side_select_signals[4]),
         .fangdou_button(fangdou_side_select_signals[4])
     );
 
     fangdou fangdou_5(
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(side_select_signals[5]),
         .fangdou_button(fangdou_side_select_signals[5])
     );
@@ -167,27 +167,16 @@ module magicalImageProcess_top (
 
 
     fangdou fangdou_6 (
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(load_image_data_button),
         .fangdou_button(fangdou_load_image_data_button)
     );
 
-reg enable_in_sram_button = 0;
-always@(posedge fangdou_load_image_data_button) begin
-    enable_in_sram_button = 1'b1;
-end
-
-
     fangdou fangdou_7 (
-        .clk(clk_in),
+        .clk(clk_in_1),
         .button(set_side_data_button),
         .fangdou_button(fangdou_set_side_data_button)
     );
-
-reg enable_set_side_data_button = 0;
-always@(posedge fangdou_set_side_data_button) begin
-    enable_set_side_data_button = 1'b1;
-end
 
 
     /*// need modified
@@ -233,7 +222,7 @@ end
     wire[15:0] data_wr_in_in_sram;
     wire[18:0] addr_wr_in_sram;
     wire done_in_sram;
-    assign enable_in_sram = enable_in_sram_button;
+    assign enable_in_sram = fangdou_load_image_data_button;
     image_in_sram image_in_sram_0 (
         .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
@@ -255,7 +244,7 @@ end
 
 
     wire enable_out_sram;
-    reg continue_out_sram
+    wire continue_out_sram;
     wire selec_out_sram;
     wire write_out_sram;
     wire read_out_sram;
@@ -265,7 +254,8 @@ end
     wire[8:0] position_coding;
     wire find_out_sram;
     wire done_out_sram;
-    assign enable_out_sram = enable_set_side_data_button;
+    assign enable_out_sram = fangdou_set_side_data_button;
+    wire done_data_set;
     assign continue_out_sram = done_data_set;
     image_out_sramdetect image_out_sramdetect_0 (
         .wclk(cam_ov7670_ov7725_0_wclk),
@@ -351,7 +341,7 @@ end
 
     wire enable_data_set;
     wire[26:0] oneside_dout;
-    wire done_data_set;
+    //wire done_data_set; // declare above 
     assign enable_data_set = done_color_coding;
     magic_side_data_set magic_side_data_set_0 (
         .clk(cam_ov7670_ov7725_0_wclk),
@@ -380,10 +370,8 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 done_top <= 0;
                 last_little_turn <= 0;
                 if(enable_in_sram) begin
-                    enable_in_sram <= 0;
                     status <= s_write;
                 end else if(enable_out_sram) begin
-                    enable_out_sram <= 0;
                     status <= s_sramdetect;
                 end else begin
                     status <= s_idle;
@@ -400,7 +388,7 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                         last_little_turn <= 1; // s_oneside_data needs this
                     end
                     status <= s_hsv;                    
-                else begin
+                end else begin
                     status <= s_sramdetect;
                 end
             end

@@ -57,8 +57,12 @@ always@(posedge wclk) begin
                 end
             end
             s_init: begin
-                if(cam_addr == 0) begin
+                if(enable) begin
+                    status <= s_init;
+                end else if(cam_addr == 0) begin
                     status <= s_write1;
+                end else begin
+                    status <= s_init;
                 end
             end
             s_write1: begin

@@ -1,5 +1,5 @@
-set_property PACKAGE_PIN P17 [get_ports clk_in1]
-set_property IOSTANDARD LVCMOS33 [get_ports clk_in1]
+set_property PACKAGE_PIN P17 [get_ports clk_in]
+set_property IOSTANDARD LVCMOS33 [get_ports clk_in]
 
 set_property PACKAGE_PIN R1 [get_ports rst]
 set_property IOSTANDARD LVCMOS33 [get_ports rst]
