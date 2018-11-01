@@ -1,3 +1,21 @@
+ /* this program is to get a picture from sram and then detect specific pixels
+    Copyright (C) 2018 IdlessChaye
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
 /*
                 if(H_cnt==h_youxia&&V_cnt==v_youxia) begin
                     status <= s_done;
@@ -6,6 +24,8 @@ be careful of that
 make sure that H_cnt==h_youxia&&V_cnt==v_youxia is the last case
 */
 
+
+`timescale 1ns / 1ns
 module image_out_sramdetect (
     input wclk, 
     input rst, // high_power work

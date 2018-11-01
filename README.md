@@ -16,6 +16,10 @@ Xilinx FPGA EGO1 xc7a35tcsg324
 
 GPLv2.0
 
+## Outline
+
+[outline](outline.png)
+
 ## Update
 
 #### 18.10.20 
@@ -41,3 +45,8 @@ GPLv2.0
 3. finish hsv2color_coding.v
 4. finish magic_side_data_set.v
 5. this project is synthesized and implemented, but not tested.
+
+#### 18.11.1
+
+1. declare GPLv2.0 licence
+2. update outline
