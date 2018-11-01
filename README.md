@@ -50,3 +50,4 @@ GPLv2.0
 
 1. declare GPLv2.0 licence
 2. update outline
+3. all tested except camera

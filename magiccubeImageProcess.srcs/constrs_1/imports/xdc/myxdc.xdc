@@ -116,6 +116,15 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sseg0[7]}]
 #debug single signal
 set_property PACKAGE_PIN F6 [get_ports signal0]
 set_property IOSTANDARD LVCMOS33 [get_ports signal0]
+set_property PACKAGE_PIN G4 [get_ports signal1]
+set_property IOSTANDARD LVCMOS33 [get_ports signal1]
+set_property PACKAGE_PIN G3 [get_ports signal2]
+set_property IOSTANDARD LVCMOS33 [get_ports signal2]
+set_property PACKAGE_PIN J4 [get_ports signal3]
+set_property IOSTANDARD LVCMOS33 [get_ports signal3]
+#done_top
+set_property PACKAGE_PIN K2 [get_ports done_top]
+set_property IOSTANDARD LVCMOS33 [get_ports done_top]
 
 
 #side_select_signals
@@ -218,16 +227,11 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[0]}]
 
 
-#load_image_data_button S0 S1
+#load_image_data_button S0 
 set_property PACKAGE_PIN R11 [get_ports load_image_data_button]
 set_property IOSTANDARD LVCMOS33 [get_ports load_image_data_button]
 
 
-#set_side_data_button
+#set_side_data_button S1
 set_property PACKAGE_PIN R17 [get_ports set_side_data_button]
 set_property IOSTANDARD LVCMOS33 [get_ports set_side_data_button]
-
-
-#done_top
-set_property PACKAGE_PIN K2 [get_ports done_top]
-set_property IOSTANDARD LVCMOS33 [get_ports done_top]

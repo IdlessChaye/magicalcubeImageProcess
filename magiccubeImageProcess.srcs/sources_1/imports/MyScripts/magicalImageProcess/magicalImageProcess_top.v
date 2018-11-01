@@ -45,7 +45,7 @@ module magicalImageProcess_top (
 
     output[3:0] en0,en1,
     output[7:0] sseg0,sseg1,
-    output signal0,
+    output signal0,signal1,signal2,signal3,
 
     output reg done_top
     );
@@ -100,6 +100,10 @@ module magicalImageProcess_top (
     //wire out_en;
 
     assign signal0 = cam_ov7670_ov7725_0_we;
+    assign signal1 = fangdou_load_image_data_button;
+    assign signal2 = fangdou_set_side_data_button;
+    assign signal3 = fangdou_side_select_signals[2];
+
 
 
     freq_divide freq_divide_0(
@@ -195,27 +199,6 @@ module magicalImageProcess_top (
         .button(set_side_data_button),
         .fangdou_button(fangdou_set_side_data_button)
     );
-
-
-    /*// need modified
-    image2magicalhsv image2magicalhsv_0 (
-        .wclk(cam_ov7670_ov7725_0_wclk),
-
-        .H_cnt(H_cnt),
-        .V_cnt(V_cnt),
-        .din(cam_ov7670_ov7725_0_dout),
-        .we(cam_ov7670_ov7725_0_we),
-    
-        .face_select(side_select),
-        .oneface_dout1(oneside_dout1),
-        .oneface_dout2(oneside_dout2),
-        .oneface_dout3(oneside_dout3),
-        .oneface_dout4(oneside_dout4),
-        .oneface_dout5(oneside_dout5),
-        .oneface_dout6(oneside_dout6),
-        .out_en(out_en)
-    );
-    */
 
 
 
@@ -435,17 +418,19 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                     status <= s_oneside_data;
                 end
 
-                case(side_select_coding)
-                    3'd1: oneside_dout1 <= oneside_dout;
-                    3'd2: oneside_dout2 <= oneside_dout;
-                    3'd3: oneside_dout3 <= oneside_dout;
-                    3'd4: oneside_dout4 <= oneside_dout;
-                    3'd5: oneside_dout5 <= oneside_dout;
-                    3'd6: oneside_dout6 <= oneside_dout;
-                    default: begin
-                        // nop
-                    end
-                endcase
+                if(last_little_turn) begin
+                    case(side_select_coding)
+                        3'd1: oneside_dout1 <= oneside_dout;
+                        3'd2: oneside_dout2 <= oneside_dout;
+                        3'd3: oneside_dout3 <= oneside_dout;
+                        3'd4: oneside_dout4 <= oneside_dout;
+                        3'd5: oneside_dout5 <= oneside_dout;
+                        3'd6: oneside_dout6 <= oneside_dout;
+                        default: begin
+                            // nop
+                        end
+                    endcase
+                end
             end
             s_done: begin
                 done_top <= 1;
