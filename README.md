@@ -18,7 +18,7 @@ GPLv2.0
 
 ## Outline
 
-![outline](outline.png)
+![outline](outline.PNG)
 
 ## Update
 
