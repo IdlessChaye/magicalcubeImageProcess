@@ -45,14 +45,17 @@ module image_out_sramdetect (
     output reg find,
     output reg done
 );
-
-
-reg[15:0] data_wr_out_reg;
-
-reg[9:0] V_cnt,H_cnt;
 localparam H_cnt_max = 320;
 localparam V_cnt_max = 240;
 
+reg[6:0] r_7;
+reg[7:0] g_8;
+reg[6:0] b_7;
+reg search_finish;
+reg[2:0] count_sum_residue;
+reg[15:0] data_wr_out_reg;
+
+reg[9:0] V_cnt,H_cnt;
 
 
 localparam[9:0] h_zuoshang=40,
@@ -83,6 +86,8 @@ localparam s_detect         = 4'b1111;
 localparam s_find           = 4'b1110;
 localparam s_done           = 4'b1100;
 localparam s_ready          = 4'b1000;
+localparam s_residue        = 4'b1001;
+localparam s_dataready      = 4'b1011;
 reg [3:0] status = s_idle;
 
 
@@ -96,6 +101,11 @@ always@(posedge wclk) begin
         H_cnt <= 0;
         rgb565 <= 0;
         position_coding <= 0;
+        count_sum_residue <= 0;
+        r_7 <= 0;
+        g_8 <= 0;
+        b_7 <= 0;
+        search_finish <= 0;
         find <= 0;
         done <= 0;
 
@@ -111,6 +121,8 @@ always@(posedge wclk) begin
                 addr_wr_out_sram <= 0;
                 V_cnt <= 0;
                 H_cnt <= 0;
+                count_sum_residue <= 0;
+                search_finish <= 0;
 
                 if(enable) begin
                     status <= s_init_enable;
@@ -140,7 +152,7 @@ always@(posedge wclk) begin
                 selec_out_sram <= 1;
                 write_out_sram <= 0;
                 read_out_sram  <= 1;
-
+                
                 status <= s_read;
             end
             s_read: begin
@@ -152,64 +164,99 @@ always@(posedge wclk) begin
 
                 if(H_cnt == H_cnt_max) begin //this H_cnt and V_cnt
                     if(V_cnt == V_cnt_max) begin
+                        H_cnt <= 0;
+                        V_cnt <= 0;
                         status <= done;
                     end else begin
                         H_cnt <= 0;
                         V_cnt <= V_cnt + 1;
 
-                        status <= s_detect;
+                        if(count_sum_residue == 0) begin
+                            status <= s_detect;    
+                        end else begin
+                            status <= s_residue; 
+                        end
                     end
                 end else begin
                     H_cnt <= H_cnt + 1;
 
-                    status <= s_detect;
+                    if(count_sum_residue == 0) begin
+                        status <= s_detect;    
+                    end else begin
+                        status <= s_residue;
+                    end
                 end
             end
             s_detect: begin
                 if(H_cnt==h_zuoshang&&V_cnt==v_zuoshang) begin
-                    rgb565 <= data_wr_out_reg;
+                    count_sum_residue <= 4;
                     position_coding <= 9'd1;
-                    status <= s_find;
+                    status <= s_residue;
                 end else if(H_cnt==h_zhongshang&&V_cnt==v_zhongshang) begin
-                    rgb565 <= data_wr_out_reg;
+                    count_sum_residue <= 4;
                     position_coding <= 9'd2;
-                    status <= s_find;
+                    status <= s_residue;
                 end else if(H_cnt==h_youshang&&V_cnt==v_youshang) begin
-                    rgb565 <= data_wr_out_reg;
+                    count_sum_residue <= 4;
                     position_coding <= 9'd3;
-                    status <= s_find;
+                    status <= s_residue;
                 end else if(H_cnt==h_zuozhong&&V_cnt==v_zuozhong) begin
-                    rgb565 <= data_wr_out_reg;                   
+                    count_sum_residue <= 4;              
                     position_coding <= 9'd4;
-                    status <= s_find;
+                    status <= s_residue;
                 end else if(H_cnt==h_zhongzhong&&V_cnt==v_zhongzhong) begin
-                    rgb565 <= data_wr_out_reg;                  
+                    count_sum_residue <= 4;              
                     position_coding <= 9'd5;
-                    status <= s_find;
+                    status <= s_residue;
                 end else if(H_cnt==h_youzhong&&V_cnt==v_youzhong) begin
-                    rgb565 <= data_wr_out_reg;                 
+                    count_sum_residue <= 4;          
                     position_coding <= 9'd6;
-                    status <= s_find;
+                    status <= s_residue;
                 end else if(H_cnt==h_zuoxia&&V_cnt==v_zuoxia) begin
-                    rgb565 <= data_wr_out_reg;                 
+                    count_sum_residue <= 4;        
                     position_coding <= 9'd7;
-                    status <= s_find;                    
+                    status <= s_residue;                  
                 end else if(H_cnt==h_zhongxia&&V_cnt==v_zhongxia) begin
-                    rgb565 <= data_wr_out_reg;            
+                    count_sum_residue <= 4;        
                     position_coding <= 9'd8;
-                    status <= s_find;                    
+                    status <= s_residue;            
                 end else if(H_cnt==h_youxia&&V_cnt==v_youxia) begin
-                    rgb565 <= data_wr_out_reg;                  
+                    search_finish <= 1;
+                    count_sum_residue <= 4;            
                     position_coding <= 9'd9;
-                    status <= s_find;
+                    status <= s_residue;
                 end else begin
                     status <= s_init_notfind;
                 end
             end
+            s_residue: begin
+                if(count_sum_residue == 4) begin
+                    r_7 <= {2'b0,data_wr_out_reg[15:11]};
+                    g_8 <= {2'b0,data_wr_out_reg[10:5]};
+                    b_7 <= {2'b0,data_wr_out_reg[4:0]};
+                    status <= s_init_notfind;
+                end else if(count_sum_residue == 1) begin
+                    r_7 <= r_7 + {2'b0,data_wr_out_reg[15:11]};
+                    g_8 <= g_8 + {2'b0,data_wr_out_reg[10:5]};
+                    b_7 <= b_7 + {2'b0,data_wr_out_reg[4:0]};
+                    status <= s_dataready;
+                end else begin
+                    r_7 <= r_7 + {2'b0,data_wr_out_reg[15:11]};
+                    g_8 <= g_8 + {2'b0,data_wr_out_reg[10:5]};
+                    b_7 <= b_7 + {2'b0,data_wr_out_reg[4:0]};
+                    status <= s_init_notfind;
+                end
+                count_sum_residue <= count_sum_residue - 1;
+            end
+            s_dataready: begin
+                rgb565 <= {r_7[6:2],g_8[7:2],b_7[6:2]};
+                status <= s_find;
+            end
             s_find: begin
                 find <= 1;
-                if(H_cnt==h_youxia&&V_cnt==v_youxia) begin
+                if(search_finish) begin
                     done <= 1; // the last case, find and done are sync
+                    search_finish <= 0;
 
                     status <= s_ready; // skip s_done
                 end else begin

@@ -57,3 +57,6 @@ GPLv2.0
 
 1. camera module works well, thank xilinx's official code 
 2. vga output module works well, thank tongtong
+3. cam_ov7670_ov7725 module can work when image is 600 * 800
+4. image_out_sramdetect module's rgb565 is the average value of four pixels
+5. hsv2color_coding module adopts minimum distance algorithm

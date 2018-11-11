@@ -31,6 +31,9 @@ module cam_ov7670_ov7725 (
     output reg we,
     output wclk
 );
+localparam H_cnt_max = 320;
+localparam V_cnt_max = 240;
+localparam all_cnt = H_cnt_max * V_cnt_max;
 
 reg [15:0] d_latch = 16'b0;
 reg [16:0] address = 17'b0;
@@ -42,8 +45,8 @@ assign wclk = pclk;
 
 reg[9:0]hcnt,vcnt;
  
-assign H_cnt = (hcnt/2>=0&&hcnt/2<321)?hcnt/2:0;
-assign V_cnt = (vcnt>=0  &&vcnt<240)  ?vcnt  :0;
+assign H_cnt = (hcnt/2>=0&&hcnt/2<H_cnt_max+1)?hcnt/2:0;
+assign V_cnt = (vcnt>=0  &&vcnt<V_cnt_max)  ?vcnt  :0;
 
 always@(posedge pclk) begin 
     if(vsync ==1) begin
@@ -52,10 +55,10 @@ always@(posedge pclk) begin
         wr_hold <=  2'b0;
     end
     else begin
-        if(address<76800)
+        if(address<all_cnt)
             address <= address_next;
         else
-            address <= 76800;
+            address <= all_cnt;
             
         we      <=  wr_hold[1];
         wr_hold <= {wr_hold[0],(href&&(!wr_hold[0]))};
@@ -69,7 +72,7 @@ always@(posedge pclk) begin
 end
 
 wire newVsignal;
-assign newVsignal = hcnt == 641? 1'b1 : 1'b0;
+assign newVsignal = hcnt == 2*H_cnt_max+1? 1'b1 : 1'b0;
 
 always@(posedge pclk) begin 
     if(vsync ==1) begin
