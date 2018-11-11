@@ -51,3 +51,9 @@ GPLv2.0
 1. declare GPLv2.0 licence
 2. update outline
 3. all tested except camera
+
+
+#### 18.11.11
+
+1. camera module works well, thank xilinx's official code 
+2. vga output module works well, thank tongtong
