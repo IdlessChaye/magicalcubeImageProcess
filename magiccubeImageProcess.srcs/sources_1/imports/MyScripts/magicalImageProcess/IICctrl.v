@@ -1,38 +1,14 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: Xilinx
-// Engineer: Zhenyu Li
-// 
-// Create Date: 02/07/2015 08:30:00 AM
-// Design Name: Interface_IP
-// Module Name: iic
-// Project Name: iic
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-module IICctrl (
+module IICctrl 
+(
 	input				iCLK,	
-    input               rst,
-
 	output				I2C_SCLK,	
-	inout				I2C_SDAT,
-	
-	output	reg	[7:0]	LUT_INDEX, 
-    input       [15:0]  LUT_DATA,	
-    input       [7:0]   Slave_Addr
+	inout				I2C_SDAT	
 );
 
-parameter	LUT_SIZE	=	170;
+parameter	LUT_SIZE	=	193;
 wire	iRST_N;	
-assign iRST_N = ~rst;
+assign iRST_N = 1;
+reg	[7:0]	LUT_INDEX;
 wire [7:0]	I2C_RDATA;
 reg			Config_Done;
 parameter	CLK_Freq	=	25_000000;	
@@ -48,11 +24,11 @@ begin
 		end
 	else
 		begin
-		 if(mI2C_CLK_DIV	< (CLK_Freq/I2C_Freq)/2)
+		 if( mI2C_CLK_DIV	< (CLK_Freq/I2C_Freq)/2)
 			 mI2C_CLK_DIV	<=	mI2C_CLK_DIV + 1'd1;
 		 else
-			begin
-			mI2C_CLK_DIV	<=	0;
+			 begin
+			 mI2C_CLK_DIV	<=	0;
 			mI2C_CTRL_CLK	<=	~mI2C_CTRL_CLK;
 			end
 		end
@@ -139,11 +115,12 @@ begin
 	end
 end
 
-//I2C_OV7670_RGB565_Config	u_I2C_OV7725_RGB565_Config
-//(
-//	.LUT_INDEX		(LUT_INDEX),
-//	.LUT_DATA		(LUT_DATA)
-//);
+wire	[15:0]	LUT_DATA;		
+I2C_OV7670_RGB565_Config	u_I2C_OV7725_RGB565_Config
+(
+	.LUT_INDEX		(LUT_INDEX),
+	.LUT_DATA		(LUT_DATA)
+);
 
 I2C_Controller 	u_I2C_Controller	
 (	
@@ -152,7 +129,7 @@ I2C_Controller 	u_I2C_Controller
 							
 	.I2C_CLK		(mI2C_CTRL_CLK),	
 	.I2C_EN			(i2c_negclk),		
-	.I2C_WDATA		({Slave_Addr, LUT_DATA}),
+	.I2C_WDATA		({8'h42, LUT_DATA}),
 	.I2C_SCLK		(I2C_SCLK),			
 	.I2C_SDAT		(I2C_SDAT),			
 	

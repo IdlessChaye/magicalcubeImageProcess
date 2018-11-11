@@ -47,7 +47,14 @@ module magicalImageProcess_top (
     output[7:0] sseg0,sseg1,
     output signal0,signal1,signal2,signal3,
 
-    output reg done_top
+    output reg done_top,
+
+    // from tongtong
+    output [3:0] vga_red,
+    output [3:0] vga_green,
+    output [3:0] vga_blue,
+    output vga_hsync,
+    output vga_vsync
     );
 
 
@@ -57,11 +64,6 @@ module magicalImageProcess_top (
     assign clk_in_1 = clk_in;
     wire rst_1;
     assign rst_1 = rst;
-
-
-    wire [15:0]ov7725_regData_0_LUT_DATA;
-    wire [7:0]IICctrl_0_LUT_INDEX;
-    wire [7:0]ov7725_regData_0_Slave_Addr;   
 
 
     wire IICctrl_0_I2C_SCLK;    
@@ -112,22 +114,11 @@ module magicalImageProcess_top (
         .clko_10MHz(clk_wiz_0_clk_out2)
     );
 
-    ov7725_regData ov7725_regData_0 (
-        .LUT_DATA(ov7725_regData_0_LUT_DATA),
-        .LUT_INDEX(IICctrl_0_LUT_INDEX),
-        .Slave_Addr(ov7725_regData_0_Slave_Addr)
-    );
 
     IICctrl IICctrl_0 (
-        .LUT_DATA(ov7725_regData_0_LUT_DATA),
-        .LUT_INDEX(IICctrl_0_LUT_INDEX),
-        .Slave_Addr(ov7725_regData_0_Slave_Addr),
-
-        .I2C_SCLK(IICctrl_0_I2C_SCLK),
-        .I2C_SDAT(OV7725_SIOD),
-
-        .iCLK(clk_wiz_0_clk_out1),
-        .rst(rst_1)
+        .iCLK(clk_wiz_0_clk_out1),   
+        .I2C_SCLK(IICctrl_0_I2C_SCLK),   
+        .I2C_SDAT(OV7725_SIOD) 
     );
 
 
@@ -462,5 +453,23 @@ assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
         .show_data({oneside_dout2[4:0],oneside_dout1}),
         .clk(clk_in_1)
     );
+
+
+    // from tongtong
+    vga_top vga_top_0(
+        .clk(clk_in_1),//100M
+        .front_in(oneside_dout1),
+        .left_in(oneside_dout2),
+        .right_in(oneside_dout3),
+        .back_in(oneside_dout4),
+        .above_in(oneside_dout5),
+        .below_in(oneside_dout6),
+        .vga_red(vga_red),
+        .vga_green(vga_green),
+        .vga_blue(vga_blue),
+        .vga_hsync(vga_hsync),
+        .vga_vsync(vga_vsync)
+    );
+
 
 endmodule
