@@ -18,7 +18,8 @@ GPLv2.0
 
 ## Outline
 
-![outline](outline.PNG)
+![outline_1](outline_1.png)
+![outline_2](outline_2.png)
 
 ## Update
 
