@@ -42,16 +42,10 @@ wire [107:0]back_out;
 wire[107:0]above_out;
 wire [107:0]below_out;
 
-reg [26:0]front;
-reg [26:0]left;
-reg [26:0]right;
-reg [26:0]back;
-reg [26:0]above;
-reg [26:0]below;
 
 clk_div(.clk(clk),.clk25(clk25));
 
-input_trans(.front_in(front),.left_in(left),.right_in(right),.back_in(back),.above_in(above),.below_in(below),
+input_trans(.front_in(front_in),.left_in(left_in),.right_in(right_in),.back_in(back_in),.above_in(above_in),.below_in(below_in),
             .front_out(front_out),.left_out(left_out),.right_out(right_out),
             .back_out(back_out),.above_out(above_out),.below_out(below_out));
 vga_cube(.clk25(clk25),.front(front_out),.left(left_out),
