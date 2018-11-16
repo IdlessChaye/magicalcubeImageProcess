@@ -54,9 +54,12 @@ module magicalImageProcess_top (
     output [3:0] vga_green,
     output [3:0] vga_blue,
     output vga_hsync,
-    output vga_vsync
+    output vga_vsync,
+    output pwdm,
+    output reset_cam
     );
-
+    assign pwdm = 1'b0;
+    assign reset_cam = 1'b1;
 
     wire clk_wiz_0_clk_out1;
     wire clk_wiz_0_clk_out2;
