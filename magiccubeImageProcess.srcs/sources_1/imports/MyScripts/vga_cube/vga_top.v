@@ -21,7 +21,7 @@
 
 
 module vga_top(
-input clk,//100M
+input clk25,
 input [26:0]front_in,
 input [26:0]left_in,
 input [26:0]right_in,
@@ -32,9 +32,10 @@ output [3:0] vga_red,
 output [3:0] vga_green,
 output [3:0] vga_blue,
 output vga_hsync,
-output vga_vsync
+output vga_vsync,
+output [16:0] frame_addr,
+input [15:0] frame_pixel
     );
-wire clk25;
 wire [107:0]front_out;
 wire [107:0]left_out;
 wire [107:0]right_out;
@@ -42,14 +43,14 @@ wire [107:0]back_out;
 wire[107:0]above_out;
 wire [107:0]below_out;
 
-
-clk_div(.clk(clk),.clk25(clk25));
-
 input_trans(.front_in(front_in),.left_in(left_in),.right_in(right_in),.back_in(back_in),.above_in(above_in),.below_in(below_in),
             .front_out(front_out),.left_out(left_out),.right_out(right_out),
             .back_out(back_out),.above_out(above_out),.below_out(below_out));
 vga_cube(.clk25(clk25),.front(front_out),.left(left_out),
          .right(right_out),.back(back_out),.above(above_out),.below(below_out),
          .vga_red(vga_red),.vga_green(vga_green),.vga_blue(vga_blue),
-         .vga_hsync(vga_hsync),.vga_vsync(vga_vsync));
+         .vga_hsync(vga_hsync),.vga_vsync(vga_vsync),
+         .frame_addr(frame_addr),
+         .frame_pixel(frame_pixel)
+         );
 endmodule

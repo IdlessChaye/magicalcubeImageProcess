@@ -138,6 +138,18 @@ module magicalImageProcess_top (
         .V_cnt(V_cnt),
         .H_cnt(H_cnt)
     );
+    
+    wire[16:0] frame_addr;
+    wire[15:0] frame_pixel;
+    blk_mem_gen_0 blk_mem_gen_0 (
+          .clka(cam_ov7670_ov7725_0_wclk),    // input wire clka
+          .wea(cam_ov7670_ov7725_0_we),      // input wire [0:0] wea
+          .addra(cam_ov7670_ov7725_0_addr),  // input wire [16:0] addra
+          .dina(cam_ov7670_ov7725_0_dout),    // input wire [15:0] dina
+          .clkb(cam_ov7670_ov7725_0_wclk),    // input wire clkb
+          .addrb(frame_addr),  // input wire [16 : 0] addrb
+          .doutb(frame_pixel)  // output wire [15 : 0] doutb
+    );    
 
 
     fangdou fangdou_0(
@@ -460,7 +472,7 @@ assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
 
     // from tongtong
     vga_top vga_top_0(
-        .clk(clk_in_1),//100M
+        .clk25(clk_wiz_0_clk_out1),
         .front_in(oneside_dout1),
         .left_in(oneside_dout2),
         .right_in(oneside_dout3),
@@ -471,7 +483,9 @@ assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
         .vga_green(vga_green),
         .vga_blue(vga_blue),
         .vga_hsync(vga_hsync),
-        .vga_vsync(vga_vsync)
+        .vga_vsync(vga_vsync),
+        .frame_addr(frame_addr),
+        .frame_pixel(frame_pixel)
     );
 
 

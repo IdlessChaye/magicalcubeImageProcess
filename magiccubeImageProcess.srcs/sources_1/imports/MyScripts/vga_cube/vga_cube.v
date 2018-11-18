@@ -31,7 +31,9 @@ output reg[3:0] vga_red,
 output reg[3:0] vga_green,
 output reg[3:0] vga_blue,
 output reg vga_hsync,
-output reg vga_vsync
+output reg vga_vsync,
+output [16:0] frame_addr,
+input [15:0] frame_pixel
     );
     //Timing constants
       parameter hRez   = 640;
@@ -43,7 +45,7 @@ output reg vga_vsync
       parameter vStartSync   = 480+10;
       parameter vEndSync     = 480+10+2;
       parameter vMaxCount    = 480+10+2+33;
-    
+      
     parameter hsync_active   =0;
     parameter vsync_active  = 0;
     reg[9:0] hCounter;
@@ -227,11 +229,30 @@ output reg vga_vsync
     else if(hCounter>=230&&hCounter<260&&vCounter>=113&&vCounter<143)
       colour<=above[95:84];
     else if(hCounter>=264&&hCounter<294&&vCounter>=113&&vCounter<143)
-      colour<=above[107:96]; 
-
-    else
+      colour<=above[107:96];
+  
+    else if(hCounter>=0&&hCounter<320&&vCounter>=0&&vCounter<240) begin
+        if(hCounter == 40 ||hCounter ==  120||hCounter == 200) begin
+            colour <= C_BLACK;
+        end else if(vCounter == 40 ||vCounter ==  120||vCounter == 200) begin
+            colour <= C_BLACK;
+        end else begin
+            colour <= {frame_pixel[15:12],frame_pixel[10:7],frame_pixel[4:1]};
+        end
+    end 
+    else 
       colour<=C_WHITE;
   end
+
+parameter address_max = 320 * 240;
+reg[16:0] address;
+assign frame_addr = address;
+always @ (posedge clk25) begin
+    if(hCounter>=0&&hCounter<320&&vCounter>=0&&vCounter<240)
+        address <= address + 1;
+    else if(address >= address_max-1)
+        address <= 0;
+end
 
  
    always@(posedge clk25)
