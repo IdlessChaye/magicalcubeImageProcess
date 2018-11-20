@@ -525,6 +525,27 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
 end
 
 
+    wire enable_reader;
+    wire selec_reader;
+    wire write_reader;
+    wire read_reader;
+    wire[18:0] addr_wr_reader;
+    wire[15:0] data_wr_out_reader;
+    wire[18:0] frame_addr_reader;
+    wire[15:0] frame_pixel_reader;
+    assign enable_reader = status == s_idle ? 1 : 0;
+    sram_read_controller sram_read_controller_0 (
+        .enable(enable_reader),
+        .selec_reader(selec_reader),
+        .write_reader(write_reader),
+        .read_reader(read_reader),
+        .addr_wr_reader(addr_wr_reader),
+        .data_wr_out_reader(data_wr_out_reader),
+        .addr_wr(frame_addr_reader),
+        .data_wr_out(frame_pixel_reader)
+    );
+
+
 
 always@* begin
     if(status == s_write) begin
@@ -535,6 +556,8 @@ always@* begin
         selec = selec_median;
     end else if(status == s_mean_filter) begin
         selec = selec_mean;
+    end else if(status == s_idle) begin
+        selec = selec_reader;
     end else begin
         selec = 0;
     end
@@ -548,6 +571,8 @@ always@* begin
         write = write_median;
     end else if(status == s_mean_filter) begin
         write = write_mean;
+    end else if(status == s_idle) begin
+        write = write_reader;
     end else begin
         write = 0;
     end
@@ -561,6 +586,8 @@ always@* begin
         read = read_median;
     end else if(status == s_mean_filter) begin
         read = read_mean;
+    end else if(status == s_idle) begin
+        read = read_reader;
     end else begin
         read = 0;
     end
@@ -583,13 +610,15 @@ always@* begin
         addr_wr = addr_wr_median;
     end else if(status == s_mean_filter) begin
         addr_wr = addr_wr_mean;
+    end else if(status == s_idle) begin
+        addr_wr = addr_wr_reader;
     end else begin
         addr_wr = 19'bz;
     end
 end
 assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
 assign data_wr_out_median   = status == s_median_filter ? data_wr_out : 16'bz;
-
+assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
 
 
 
@@ -601,9 +630,13 @@ assign data_wr_out_median   = status == s_median_filter ? data_wr_out : 16'bz;
     );
 
 
+
+
     // from tongtong
     wire[16:0] frame_addr_1_r_vga;
     wire[15:0] frame_pixel_1_r_vga;
+    wire[18:0] frame_addr_reader_vga;
+    wire[15:0] frame_pixel_reader_vga;
     vga_top vga_top_0(
         .clk25(clk_wiz_0_clk_out1), //25MHz
         .front_in(oneside_dout1),
@@ -618,7 +651,9 @@ assign data_wr_out_median   = status == s_median_filter ? data_wr_out : 16'bz;
         .vga_hsync(vga_hsync),
         .vga_vsync(vga_vsync),
         .frame_addr(frame_addr_1_r_vga),
-        .frame_pixel(frame_pixel_1_r_vga)
+        .frame_pixel(frame_pixel_1_r_vga),
+        .frame_addr_reader(frame_addr_reader_vga),
+        .frame_pixel_reader(frame_pixel_reader_vga)
     );
 
 
@@ -653,4 +688,7 @@ end
 
 assign frame_pixel_1_r_mean = status == s_mean_filter ? frame_pixel_1_r : 0;
 assign frame_pixel_1_r_vga  = status == s_mean_filter ? 0 : frame_pixel_1_r;
+
+assign frame_addr_reader = frame_addr_reader_vga;
+assign frame_pixel_reader_vga = frame_pixel_reader;
 endmodule

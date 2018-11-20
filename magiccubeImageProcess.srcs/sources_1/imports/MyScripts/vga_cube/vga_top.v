@@ -34,7 +34,9 @@ output [3:0] vga_blue,
 output vga_hsync,
 output vga_vsync,
 output [16:0] frame_addr,
-input [15:0] frame_pixel
+input [15:0] frame_pixel,
+output[18:0] frame_addr_reader,
+input[15:0] frame_pixel_reader
     );
 wire [107:0]front_out;
 wire [107:0]left_out;
@@ -51,6 +53,8 @@ vga_cube(.clk25(clk25),.front(front_out),.left(left_out),
          .vga_red(vga_red),.vga_green(vga_green),.vga_blue(vga_blue),
          .vga_hsync(vga_hsync),.vga_vsync(vga_vsync),
          .frame_addr(frame_addr),
-         .frame_pixel(frame_pixel)
+         .frame_pixel(frame_pixel),
+         .frame_addr_reader(frame_addr_reader),
+         .frame_pixel_reader(frame_pixel_reader)
          );
 endmodule

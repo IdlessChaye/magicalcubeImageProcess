@@ -33,7 +33,9 @@ output reg[3:0] vga_blue,
 output reg vga_hsync,
 output reg vga_vsync,
 output [16:0] frame_addr,
-input [15:0] frame_pixel
+input [15:0] frame_pixel,
+output[18:0] frame_addr_reader,
+input[15:0] frame_pixel_reader
     );
     //Timing constants
       parameter hRez   = 640;
@@ -239,7 +241,16 @@ input [15:0] frame_pixel
         end else begin
             colour <= {frame_pixel[15:12],frame_pixel[10:7],frame_pixel[4:1]};
         end
-    end 
+    end
+    else if(hCounter>=0&&hCounter<320&&vCounter>=240&&vCounter<480) begin
+        if(hCounter == 40 ||hCounter ==  120||hCounter == 200) begin
+            colour <= C_BLACK;
+        end else if(vCounter == 280 ||vCounter ==  360||vCounter == 440) begin
+            colour <= C_BLACK;
+        end else begin
+            colour <= {frame_pixel_reader[15:12],frame_pixel_reader[10:7],frame_pixel_reader[4:1]};
+        end
+    end
     else 
       colour<=C_WHITE;
   end
@@ -254,36 +265,46 @@ always @ (posedge clk25) begin
         address <= 0;
 end
 
+parameter address2_max = 320 * 240;
+reg[16:0] address2;
+assign frame_addr_reader = {2'b0,address2};
+always @ (posedge clk25) begin
+    if(hCounter>=0&&hCounter<320&&vCounter>=240&&vCounter<480)
+        address2 <= address2 + 1;
+    else if(address2 >= address2_max-1)
+        address2 <= 0;
+end
+
 
 
    always@(posedge clk25)
    begin
-            if( hCounter == hMaxCount-1 )begin//行扫描最大
+            if( hCounter == hMaxCount-1 )begin//脨脨脡篓脙猫脳卯麓贸
    				hCounter <=  10'b0;
-   				if (vCounter == vMaxCount-1 )//场扫描最大屏幕归零
+   				if (vCounter == vMaxCount-1 )//鲁隆脡篓脙猫脳卯麓贸脝脕脛禄鹿茅脕茫
    					vCounter <=  10'b0;
    				else
-   					vCounter <= vCounter+1;//否则向下一行
+   					vCounter <= vCounter+1;//路帽脭貌脧貌脧脗脪禄脨脨
    				end
    			else
-   				hCounter <= hCounter+1;//该行继续扫描
+   				hCounter <= hCounter+1;//赂脙脨脨录脤脨酶脡篓脙猫
    
-   			if (blank ==0) begin          //blank ==0为数据有效期 blank ==1为消隐期
+   			if (blank ==0) begin          //blank ==0脦陋脢媒戮脻脫脨脨搂脝脷 blank ==1脦陋脧没脪镁脝脷
    				vga_red   <= colour[11:8];
    				vga_green <= colour[7:4];
    				vga_blue  <= colour[3:0];
    				end
-   			else begin//blank==1数据无效
+   			else begin//blank==1脢媒戮脻脦脼脨搂
    				vga_red   <= 4'b0;
    				vga_green <= 4'b0;
    				vga_blue  <= 4'b0;
    			     end;
    	
-   			if(  vCounter  >= 480 || vCounter  < 0) begin    //场计数器大于等于480后开始进入场消隐期
+   			if(  vCounter  >= 480 || vCounter  < 0) begin    //鲁隆录脝脢媒脝梅麓贸脫脷碌脠脫脷480潞贸驴陋脢录陆酶脠毛鲁隆脧没脪镁脝脷
    				blank <= 1;
    				end
    			else begin
-   				if ( hCounter  < 640 && hCounter  >= 0) begin  //行计数器在0到639期间为行有效期
+   				if ( hCounter  < 640 && hCounter  >= 0) begin  //脨脨录脝脢媒脝梅脭脷0碌陆639脝脷录盲脦陋脨脨脫脨脨搂脝脷
    					blank <= 0;
    					end
    				else
@@ -293,7 +314,7 @@ end
    			// Are we in the hSync pulse? (one has been added to include frame_buffer_latency)
    			//parameter hStartSync   = 640+16;
             //parameter hEndSync     = 640+16+96;
-            //每一行有一个96个点周期的行同步信号
+            //脙驴脪禄脨脨脫脨脪禄赂枚96赂枚碌茫脰脺脝脷碌脛脨脨脥卢虏陆脨脜潞脜
    			if( hCounter > hStartSync && hCounter <= hEndSync)
    				vga_hsync <= hsync_active;
    			else
@@ -303,7 +324,7 @@ end
    			// Are we in the vSync pulse?
    			//parameter vStartSync   = 480+10;
             //parameter vEndSync     = 480+10+2;
-            //每一场有一个2个行周期的场同步信号
+            //脙驴脪禄鲁隆脫脨脪禄赂枚2赂枚脨脨脰脺脝脷碌脛鲁隆脥卢虏陆脨脜潞脜
    			if( vCounter >= vStartSync && vCounter < vEndSync )
    				vga_vsync <= vsync_active;
    			else

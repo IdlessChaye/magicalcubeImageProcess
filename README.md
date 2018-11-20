@@ -66,3 +66,4 @@ GPLv2.0
 
 1. in order to reduce the influence of pepper noise and gaussian noise, add median filter module and mean filter module
 2. new branch for filter modules
+3. vga module can show images from bram and sram

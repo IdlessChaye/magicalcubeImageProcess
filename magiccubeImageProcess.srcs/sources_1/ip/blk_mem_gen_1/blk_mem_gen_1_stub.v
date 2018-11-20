@@ -1,11 +1,11 @@
 // Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2017.4 (win64) Build 2086221 Fri Dec 15 20:55:39 MST 2017
-// Date        : Sun Nov 18 16:13:41 2018
+// Date        : Tue Nov 20 16:37:44 2018
 // Host        : PC-20170807WOKV running 64-bit Service Pack 1  (build 7601)
-// Command     : write_verilog -force -mode synth_stub -rename_top blk_mem_gen_1 -prefix
-//               blk_mem_gen_1_ blk_mem_gen_0_stub.v
-// Design      : blk_mem_gen_0
+// Command     : write_verilog -force -mode synth_stub
+//               g:/FPGA_Projects/team_MagicCube/magiccubeImageProcess/magiccubeImageProcess.srcs/sources_1/ip/blk_mem_gen_1/blk_mem_gen_1_stub.v
+// Design      : blk_mem_gen_1
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7a35tcsg324-1
 // --------------------------------------------------------------------------------
