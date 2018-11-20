@@ -254,7 +254,8 @@ always @ (posedge clk25) begin
         address <= 0;
 end
 
- 
+
+
    always@(posedge clk25)
    begin
             if( hCounter == hMaxCount-1 )begin//ÐÐÉ¨Ãè×î´ó

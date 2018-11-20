@@ -16,7 +16,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-//
+
 `timescale 1ns / 1ns
 module button2face (
     input[5:0] face_select_signals,
