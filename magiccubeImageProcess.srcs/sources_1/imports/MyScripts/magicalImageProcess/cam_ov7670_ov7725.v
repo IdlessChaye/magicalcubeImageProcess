@@ -19,7 +19,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-module cam_ov7670_ov7725 (
+module cam_ov7670_ov7725 #(parameter H_cnt_max = 320,
+                           parameter V_cnt_max = 240) (
     input pclk,
     input vsync,
     input href,
@@ -31,8 +32,7 @@ module cam_ov7670_ov7725 (
     output reg we,
     output wclk
 );
-localparam H_cnt_max = 320;
-localparam V_cnt_max = 240;
+
 localparam all_cnt = H_cnt_max * V_cnt_max;
 
 reg [15:0] d_latch = 16'b0;

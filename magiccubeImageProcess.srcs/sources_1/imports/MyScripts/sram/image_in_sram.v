@@ -18,7 +18,8 @@
 
 
 `timescale 1ns / 1ns
-module image_in_sram (
+module image_in_sram #(parameter H_cnt_max=320,
+                       parameter V_cnt_max=240) (
     input wclk, 
     input rst, // high_power work
 
@@ -38,7 +39,7 @@ module image_in_sram (
 );
 
     
-localparam address_count_max = 240 * 320 - 1; // 76800 - 1
+localparam address_count_max = H_cnt_max * V_cnt_max - 1; // 76800 - 1
 
 
 localparam s_idle           = 4'b0000;

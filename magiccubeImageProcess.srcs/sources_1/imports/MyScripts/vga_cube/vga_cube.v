@@ -1,24 +1,22 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 2015/02/09 08:47:54
-// Design Name: 
-// Module Name: vga1
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
+ /* this program can show image and magic cube through vga
+    Copyright (C) 2018 Tongtong
 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+`timescale 1ns / 1ns
 module vga_cube(
 input clk25,
 input [107:0]front,
@@ -31,7 +29,11 @@ output reg[3:0] vga_red,
 output reg[3:0] vga_green,
 output reg[3:0] vga_blue,
 output reg vga_hsync,
-output reg vga_vsync
+output reg vga_vsync,
+output [16:0] frame_addr,
+input [15:0] frame_pixel,
+output[18:0] frame_addr_reader,
+input[15:0] frame_pixel_reader
     );
     //Timing constants
       parameter hRez   = 640;
@@ -43,7 +45,7 @@ output reg vga_vsync
       parameter vStartSync   = 480+10;
       parameter vEndSync     = 480+10+2;
       parameter vMaxCount    = 480+10+2+33;
-    
+      
     parameter hsync_active   =0;
     parameter vsync_active  = 0;
     reg[9:0] hCounter;
@@ -227,41 +229,80 @@ output reg vga_vsync
     else if(hCounter>=230&&hCounter<260&&vCounter>=113&&vCounter<143)
       colour<=above[95:84];
     else if(hCounter>=264&&hCounter<294&&vCounter>=113&&vCounter<143)
-      colour<=above[107:96]; 
-
-    else
+      colour<=above[107:96];
+  
+    else if(hCounter>=0&&hCounter<320&&vCounter>=0&&vCounter<240) begin
+        if(hCounter == 40 ||hCounter ==  120||hCounter == 200) begin
+            colour <= C_BLACK;
+        end else if(vCounter == 40 ||vCounter ==  120||vCounter == 200) begin
+            colour <= C_BLACK;
+        end else begin
+            colour <= {frame_pixel[15:12],frame_pixel[10:7],frame_pixel[4:1]};
+        end
+    end
+    else if(hCounter>=0&&hCounter<320&&vCounter>=240&&vCounter<480) begin
+        if(hCounter == 40 ||hCounter ==  120||hCounter == 200) begin
+            colour <= C_BLACK;
+        end else if(vCounter == 280 ||vCounter ==  360||vCounter == 440) begin
+            colour <= C_BLACK;
+        end else begin
+            colour <= {frame_pixel_reader[15:12],frame_pixel_reader[10:7],frame_pixel_reader[4:1]};
+        end
+    end
+    else 
       colour<=C_WHITE;
   end
 
- 
+parameter address_max = 320 * 240;
+reg[16:0] address;
+assign frame_addr = address;
+always @ (posedge clk25) begin
+    if(hCounter>=0&&hCounter<320&&vCounter>=0&&vCounter<240)
+        address <= address + 1;
+    else if(address >= address_max-1)
+        address <= 0;
+end
+
+parameter address2_max = 320 * 240;
+reg[16:0] address2;
+assign frame_addr_reader = {2'b0,address2};
+always @ (posedge clk25) begin
+    if(hCounter>=0&&hCounter<320&&vCounter>=240&&vCounter<480)
+        address2 <= address2 + 1;
+    else if(address2 >= address2_max-1)
+        address2 <= 0;
+end
+
+
+
    always@(posedge clk25)
    begin
-            if( hCounter == hMaxCount-1 )begin//行扫描最大
+            if( hCounter == hMaxCount-1 )begin//脨脨脡篓脙猫脳卯麓贸
    				hCounter <=  10'b0;
-   				if (vCounter == vMaxCount-1 )//场扫描最大屏幕归零
+   				if (vCounter == vMaxCount-1 )//鲁隆脡篓脙猫脳卯麓贸脝脕脛禄鹿茅脕茫
    					vCounter <=  10'b0;
    				else
-   					vCounter <= vCounter+1;//否则向下一行
+   					vCounter <= vCounter+1;//路帽脭貌脧貌脧脗脪禄脨脨
    				end
    			else
-   				hCounter <= hCounter+1;//该行继续扫描
+   				hCounter <= hCounter+1;//赂脙脨脨录脤脨酶脡篓脙猫
    
-   			if (blank ==0) begin          //blank ==0为数据有效期 blank ==1为消隐期
+   			if (blank ==0) begin          //blank ==0脦陋脢媒戮脻脫脨脨搂脝脷 blank ==1脦陋脧没脪镁脝脷
    				vga_red   <= colour[11:8];
    				vga_green <= colour[7:4];
    				vga_blue  <= colour[3:0];
    				end
-   			else begin//blank==1数据无效
+   			else begin//blank==1脢媒戮脻脦脼脨搂
    				vga_red   <= 4'b0;
    				vga_green <= 4'b0;
    				vga_blue  <= 4'b0;
    			     end;
    	
-   			if(  vCounter  >= 480 || vCounter  < 0) begin    //场计数器大于等于480后开始进入场消隐期
+   			if(  vCounter  >= 480 || vCounter  < 0) begin    //鲁隆录脝脢媒脝梅麓贸脫脷碌脠脫脷480潞贸驴陋脢录陆酶脠毛鲁隆脧没脪镁脝脷
    				blank <= 1;
    				end
    			else begin
-   				if ( hCounter  < 640 && hCounter  >= 0) begin  //行计数器在0到639期间为行有效期
+   				if ( hCounter  < 640 && hCounter  >= 0) begin  //脨脨录脝脢媒脝梅脭脷0碌陆639脝脷录盲脦陋脨脨脫脨脨搂脝脷
    					blank <= 0;
    					end
    				else
@@ -271,7 +312,7 @@ output reg vga_vsync
    			// Are we in the hSync pulse? (one has been added to include frame_buffer_latency)
    			//parameter hStartSync   = 640+16;
             //parameter hEndSync     = 640+16+96;
-            //每一行有一个96个点周期的行同步信号
+            //脙驴脪禄脨脨脫脨脪禄赂枚96赂枚碌茫脰脺脝脷碌脛脨脨脥卢虏陆脨脜潞脜
    			if( hCounter > hStartSync && hCounter <= hEndSync)
    				vga_hsync <= hsync_active;
    			else
@@ -281,7 +322,7 @@ output reg vga_vsync
    			// Are we in the vSync pulse?
    			//parameter vStartSync   = 480+10;
             //parameter vEndSync     = 480+10+2;
-            //每一场有一个2个行周期的场同步信号
+            //脙驴脪禄鲁隆脫脨脪禄赂枚2赂枚脨脨脰脺脝脷碌脛鲁隆脥卢虏陆脨脜潞脜
    			if( vCounter >= vStartSync && vCounter < vEndSync )
    				vga_vsync <= vsync_active;
    			else

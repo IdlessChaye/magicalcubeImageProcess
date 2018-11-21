@@ -61,3 +61,15 @@ GPLv2.0
 3. cam_ov7670_ov7725 module can work when image is 600 * 800
 4. image_out_sramdetect module's rgb565 is the average value of four pixels
 5. hsv2color_coding module adopts minimum distance algorithm
+
+#### 18.11.20
+
+1. in order to reduce the influence of pepper noise and gaussian noise, add median filter module and mean filter module
+2. new branch for filter modules
+3. vga module can show images from bram and sram
+
+#### 18.11.21
+
+1. filter modules are finished and tested.
+2. debug kill me one day
+3. merge denoise to master

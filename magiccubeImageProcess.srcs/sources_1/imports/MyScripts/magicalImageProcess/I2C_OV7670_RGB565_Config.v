@@ -32,7 +32,7 @@ begin
     	SET_OV7670 + 17 : 	LUT_DATA	= 	16'h7300;	
     	SET_OV7670 + 18 : 	LUT_DATA	= 	16'ha202;	
     	SET_OV7670 + 19 : 	LUT_DATA	= 	16'h1180;	
-    	SET_OV7670 + 20 : 	LUT_DATA	= 	16'h7a20;
+      	SET_OV7670 + 20 : 	LUT_DATA	= 	16'h7a20; // gamma
     	SET_OV7670 + 21 : 	LUT_DATA	= 	16'h7b1c;
     	SET_OV7670 + 22 : 	LUT_DATA	= 	16'h7c28;
     	SET_OV7670 + 23 : 	LUT_DATA	= 	16'h7d3c;
@@ -48,6 +48,23 @@ begin
     	SET_OV7670 + 33 : 	LUT_DATA	= 	16'h87c4;
     	SET_OV7670 + 34 : 	LUT_DATA	= 	16'h88d7;
     	SET_OV7670 + 35 : 	LUT_DATA	= 	16'h89e8;
+   /*     SET_OV7670 + 20 :   LUT_DATA    =   16'h7a24;
+        SET_OV7670 + 21 :   LUT_DATA    =   16'h7b04;
+        SET_OV7670 + 22 :   LUT_DATA    =   16'h7c07;
+        SET_OV7670 + 23 :   LUT_DATA    =   16'h7d10;
+        SET_OV7670 + 24 :   LUT_DATA    =   16'h7e28;
+        SET_OV7670 + 25 :   LUT_DATA    =   16'h7f36;
+        SET_OV7670 + 26 :   LUT_DATA    =   16'h8044;
+        SET_OV7670 + 27 :   LUT_DATA    =   16'h8152;
+        SET_OV7670 + 28 :   LUT_DATA    =   16'h8260;
+        SET_OV7670 + 29 :   LUT_DATA    =   16'h836c;
+        SET_OV7670 + 30 :   LUT_DATA    =   16'h8478;
+        SET_OV7670 + 31 :   LUT_DATA    =   16'h858c;
+        SET_OV7670 + 32 :   LUT_DATA    =   16'h869e;
+        SET_OV7670 + 33 :   LUT_DATA    =   16'h87bb;
+        SET_OV7670 + 34 :   LUT_DATA    =   16'h88d2;
+        SET_OV7670 + 35 :   LUT_DATA    =   16'h89e5;*/
+
     	SET_OV7670 + 36 : 	LUT_DATA	= 	16'h13e0;
     	SET_OV7670 + 37 : 	LUT_DATA	= 	16'h0000;
     	SET_OV7670 + 38 : 	LUT_DATA	= 	16'h1000;
@@ -127,7 +144,7 @@ begin
     	SET_OV7670 + 108 :	LUT_DATA	=	16'h13e7;
     	SET_OV7670 + 109 :	LUT_DATA	=	16'h1500;
     	
-    	SET_OV7670 + 110 :	LUT_DATA	= 	16'h4f80;
+    	SET_OV7670 + 110 :	LUT_DATA	= 	16'h4f80; 
     	SET_OV7670 + 111 :	LUT_DATA	= 	16'h5080;
     	SET_OV7670 + 112 :	LUT_DATA	= 	16'h5100;
     	SET_OV7670 + 113 :	LUT_DATA	= 	16'h5222;
@@ -139,13 +156,14 @@ begin
     	SET_OV7670 + 118 : 	LUT_DATA	=	16'h3f00;
     	SET_OV7670 + 119 : 	LUT_DATA	=	16'h7505;
     	SET_OV7670 + 120 : 	LUT_DATA	=	16'h76e1;
-    	SET_OV7670 + 121 : 	LUT_DATA	=	16'h4c00;
+    	SET_OV7670 + 121 : 	LUT_DATA	=	16'h4cff; // 噪声抑制 4cffshishi
     	SET_OV7670 + 122 : 	LUT_DATA	=	16'h7701;
     	
     	SET_OV7670 + 123 : 	LUT_DATA	=	16'h4b09;
-    	SET_OV7670 + 124 : 	LUT_DATA	=	16'hc9F0;
+    	SET_OV7670 + 124 : 	LUT_DATA	=	16'hc900; // saturation c9c0shishi
     	SET_OV7670 + 125 : 	LUT_DATA	=	16'h4138;
-    	SET_OV7670 + 126 : 	LUT_DATA	=	16'h5640;
+
+    	SET_OV7670 + 126 : 	LUT_DATA	=	16'h5600; // 5640 contras
     	
     	
     	SET_OV7670 + 127 : 	LUT_DATA	=	16'h3411;
@@ -188,7 +206,8 @@ begin
     	SET_OV7670 + 162 :	LUT_DATA	= 	16'h7926;
     	SET_OV7670 + 163 :	LUT_DATA	= 	16'h0903;
     	SET_OV7670 + 164 :	LUT_DATA	= 	16'h3b42;
-        
+
+        SET_OV7670 + 165 :  LUT_DATA    =   16'h5500;// bright
 
 	default		 :	LUT_DATA	=	0;
 	endcase

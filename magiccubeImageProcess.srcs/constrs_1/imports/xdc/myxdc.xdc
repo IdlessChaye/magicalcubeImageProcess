@@ -161,7 +161,7 @@ set_property PACKAGE_PIN U14 [get_ports {sram_data[10]}]
 set_property PACKAGE_PIN V14 [get_ports {sram_data[11]}]
 set_property PACKAGE_PIN T13 [get_ports {sram_data[12]}]
 set_property PACKAGE_PIN U13 [get_ports {sram_data[13]}]
-set_property PACKAGE_PIN T9  [get_ports {sram_data[14]}]
+set_property PACKAGE_PIN T9 [get_ports {sram_data[14]}]
 set_property PACKAGE_PIN T10 [get_ports {sram_data[15]}]
 
 set_property PACKAGE_PIN T15 [get_ports {sram_addr[0]}]
@@ -226,7 +226,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[1]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sram_addr[0]}]
 
 
-#load_image_data_button S0 
+#load_image_data_button S0
 set_property PACKAGE_PIN R11 [get_ports load_image_data_button]
 set_property IOSTANDARD LVCMOS33 [get_ports load_image_data_button]
 

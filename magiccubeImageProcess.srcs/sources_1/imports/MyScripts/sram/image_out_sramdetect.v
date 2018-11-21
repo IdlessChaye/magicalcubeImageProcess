@@ -26,7 +26,8 @@ make sure that H_cnt==h_youxia&&V_cnt==v_youxia is the last case
 
 
 `timescale 1ns / 1ns
-module image_out_sramdetect (
+module image_out_sramdetect #(parameter H_cnt_max = 320,
+                              parameter V_cnt_max = 240) (
     input wclk, 
     input rst, // high_power work
 
@@ -45,8 +46,6 @@ module image_out_sramdetect (
     output reg find,
     output reg done
 );
-localparam H_cnt_max = 320;
-localparam V_cnt_max = 240;
 
 reg[6:0] r_7;
 reg[7:0] g_8;

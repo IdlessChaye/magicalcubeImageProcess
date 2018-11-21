@@ -60,6 +60,8 @@ module magicalImageProcess_top (
     );
     assign pwdm = 1'b0;
     assign reset_cam = 1'b1;
+    parameter H_cnt_max = 320;
+    parameter V_cnt_max = 240;
 
     wire clk_wiz_0_clk_out1;
     wire clk_wiz_0_clk_out2;
@@ -125,7 +127,8 @@ module magicalImageProcess_top (
     );
 
 
-    cam_ov7670_ov7725 cam_ov7670_ov7725_0 (
+    cam_ov7670_ov7725 #(.H_cnt_max(H_cnt_max),
+                        .V_cnt_max(V_cnt_max)) cam_ov7670_ov7725_0 (
         .pclk(pclk_1),
         .vsync(vsync_1),
         .href(href_1),
@@ -138,6 +141,22 @@ module magicalImageProcess_top (
         .V_cnt(V_cnt),
         .H_cnt(H_cnt)
     );
+    
+
+    reg frame_1_we;
+    reg[16:0] frame_addr_1_w;
+    reg[15:0] frame_pixel_1_w;
+    reg[16:0] frame_addr_1_r;
+    wire[15:0] frame_pixel_1_r;
+    blk_mem_gen_1 blk_mem_gen_1 (
+          .clka(cam_ov7670_ov7725_0_wclk),    // input wire clka
+          .wea(frame_1_we),      // input wire [0:0] wea
+          .addra(frame_addr_1_w),  // input wire [16:0] addra
+          .dina(frame_pixel_1_w),    // input wire [15:0] dina
+          .clkb(cam_ov7670_ov7725_0_wclk),    // input wire clkb
+          .addrb(frame_addr_1_r),  // input wire [16 : 0] addrb
+          .doutb(frame_pixel_1_r)  // output wire [15 : 0] doutb
+    ); 
 
 
     fangdou fangdou_0(
@@ -200,6 +219,8 @@ module magicalImageProcess_top (
     localparam s_idle           = 4'b0000;
     localparam s_init           = 4'b0001;
     localparam s_write          = 4'b0011;
+    localparam s_median_filter  = 4'b0100;
+    localparam s_mean_filter    = 4'b0110;
     localparam s_sramdetect     = 4'b0010;
     localparam s_hsv            = 4'b0111;
     localparam s_color_coding   = 4'b1111;
@@ -218,7 +239,8 @@ module magicalImageProcess_top (
     wire[18:0] addr_wr_in_sram;
     wire done_in_sram;
     assign enable_in_sram = fangdou_load_image_data_button;
-    image_in_sram image_in_sram_0 (
+    image_in_sram #(.H_cnt_max(H_cnt_max),
+                    .V_cnt_max(V_cnt_max)) image_in_sram_0 (
         .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
@@ -249,10 +271,12 @@ module magicalImageProcess_top (
     wire[8:0] position_coding;
     wire find_out_sram;
     wire done_out_sram;
-    assign enable_out_sram = fangdou_set_side_data_button;
+    wire done_mean;   
+    assign enable_out_sram = done_mean;
     wire done_data_set;
     assign continue_out_sram = done_data_set;
-    image_out_sramdetect image_out_sramdetect_0 (
+    image_out_sramdetect #(.H_cnt_max(H_cnt_max),
+                           .V_cnt_max(V_cnt_max)) image_out_sramdetect_0 (
         .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
@@ -273,12 +297,12 @@ module magicalImageProcess_top (
     );
 
 
-    wire selec;
-    wire write;
-    wire read;
-    wire[15:0] data_wr_in;
+    reg selec;
+    reg write;
+    reg read;
+    reg[15:0] data_wr_in;
     wire[15:0] data_wr_out;
-    wire[18:0] addr_wr;
+    reg[18:0] addr_wr;
     sram_ctrl sram_ctrl_0 (
         .clk(cam_ov7670_ov7725_0_wclk),
         .rst_n(!rst_1),
@@ -300,6 +324,66 @@ module magicalImageProcess_top (
     );
 
 
+    wire enable_median;
+    wire selec_median;
+    wire write_median;
+    wire read_median;
+    wire[18:0] addr_wr_median;
+    wire[15:0] data_wr_out_median;
+    wire frame_1_we_median;
+    wire[16:0] frame_addr_1_w_median;
+    wire[15:0] frame_pixel_1_w_median;
+    wire done_median;
+    assign enable_median = fangdou_set_side_data_button;
+    MedianFilter MedianFilter_0 (
+        .wclk(clk_wiz_0_clk_out1),
+        .rst(rst_1),
+
+        .enable(enable_median),
+
+        .selec_median(selec_median),
+        .write_median(write_median),
+        .read_median(read_median),
+        .addr_wr_median(addr_wr_median),
+        
+        .data_wr_out_median(data_wr_out_median),
+
+        .frame_1_we(frame_1_we_median),
+        .frame_addr_1_w(frame_addr_1_w_median),
+        .frame_pixel_1_w(frame_pixel_1_w_median),
+
+        .done(done_median)
+    );
+
+
+    wire enable_mean;
+    wire selec_mean;
+    wire write_mean;
+    wire read_mean;
+    wire[18:0] addr_wr_mean;
+    wire[15:0] data_wr_in_mean;
+    wire[16:0] frame_addr_1_r_mean;
+    wire[15:0] frame_pixel_1_r_mean;
+    //wire done_mean;
+    assign enable_mean = done_median;
+    MeanFilter MeanFilter_0 (
+        .wclk(clk_wiz_0_clk_out1),
+        .rst(rst_1),
+
+        .enable(enable_mean),
+
+        .frame_addr_1_r(frame_addr_1_r_mean),
+        .frame_pixel_1_r(frame_pixel_1_r_mean),
+
+        .selec_mean(selec_mean),
+        .write_mean(write_mean),
+        .read_mean(read_mean),
+        .data_wr_in_mean(data_wr_in_mean),
+        .addr_wr_mean(addr_wr_mean),
+
+        .done(done_mean)
+    );
+
 
     wire enable_rgb2hsv;
     wire[24:0] hsv25;
@@ -318,6 +402,37 @@ module magicalImageProcess_top (
 
 
     wire enable_color_coding;
+    reg[8:0] color1_Hue_input = 0;
+    reg[8:0] color2_Hue_input = 60;
+    reg[8:0] color3_Hue_input = 120;
+    reg[8:0] color4_Hue_input = 180;
+    reg[8:0] color5_Hue_input = 240;
+    reg[8:0] color6_Hue_input = 300;
+    always@* begin
+        case(fangdou_side_select_signals)
+            6'b111110: begin
+                color1_Hue_input = hsv25[24:16];
+            end
+            6'b111101: begin
+                color2_Hue_input = hsv25[24:16];
+            end            
+            6'b111011: begin
+                color3_Hue_input = hsv25[24:16];
+            end       
+            6'b110111: begin
+                color4_Hue_input = hsv25[24:16];
+            end            
+            6'b101111: begin
+                color5_Hue_input = hsv25[24:16];
+            end
+            6'b011111: begin
+                color6_Hue_input = hsv25[24:16];
+            end
+            default: begin
+                //nop
+            end          
+        endcase
+    end
     wire[2:0] color_coding;
     wire done_color_coding;
     assign enable_color_coding = done_rgb2hsv;
@@ -326,6 +441,13 @@ module magicalImageProcess_top (
         .rst(rst_1),
 
         .enable(enable_color_coding),
+
+        .color1_Hue_input(color1_Hue_input),
+        .color2_Hue_input(color2_Hue_input),
+        .color3_Hue_input(color3_Hue_input),
+        .color4_Hue_input(color4_Hue_input),
+        .color5_Hue_input(color5_Hue_input),
+        .color6_Hue_input(color6_Hue_input),
 
         .hsv25(hsv25),
         .color_coding(color_coding),
@@ -366,15 +488,23 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 last_little_turn <= 0;
                 if(enable_in_sram) begin
                     status <= s_write;
-                end else if(enable_out_sram) begin
-                    status <= s_sramdetect;
-                end else begin
-                    status <= s_idle;
+                end else if(enable_median) begin
+                    status <= s_median_filter;
                 end
             end
             s_write: begin
                 if(done_in_sram) begin
                     status <= s_done;
+                end
+            end
+            s_median_filter: begin
+                if(done_median) begin
+                    status <= s_mean_filter;
+                end
+            end
+            s_mean_filter: begin
+                if(done_mean) begin
+                    status <= s_sramdetect; 
                 end
             end
             s_sramdetect: begin
@@ -383,22 +513,16 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                         last_little_turn <= 1; // s_oneside_data needs this
                     end
                     status <= s_hsv;                    
-                end else begin
-                    status <= s_sramdetect;
                 end
             end
             s_hsv: begin
                 if(done_rgb2hsv) begin
                     status <= s_color_coding;
-                end else begin
-                    status <= s_hsv;
                 end
             end
             s_color_coding: begin
                 if(done_color_coding) begin
                     status <= s_oneside_data;
-                end else begin
-                    status <= s_color_coding;
                 end
             end
             s_oneside_data: begin
@@ -408,8 +532,6 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                     end else begin
                         status <= s_sramdetect;
                     end
-                end else begin
-                    status <= s_oneside_data;
                 end
 
                 if(last_little_turn) begin
@@ -441,12 +563,101 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
 end
 
 
-assign selec = status == s_write ? selec_in_sram : status == s_sramdetect ? selec_out_sram : 1'b0;
-assign write = status == s_write ? write_in_sram : status == s_sramdetect ? write_out_sram : 1'b0;
-assign read  = status == s_write ? read_in_sram  : status == s_sramdetect ? read_out_sram  : 1'b0;
-assign data_wr_in = status == s_write ? data_wr_in_in_sram : 16'bz;
-assign addr_wr    = status == s_write ? addr_wr_in_sram    : status == s_sramdetect ? addr_wr_out_sram : 19'bz;
+    wire enable_reader;
+    wire selec_reader;
+    wire write_reader;
+    wire read_reader;
+    wire[18:0] addr_wr_reader;
+    wire[15:0] data_wr_out_reader;
+    wire[18:0] frame_addr_reader;
+    wire[15:0] frame_pixel_reader;
+    assign enable_reader = status == s_idle ? 1 : 0;
+    sram_read_controller sram_read_controller_0 (
+        .enable(enable_reader),
+        .selec_reader(selec_reader),
+        .write_reader(write_reader),
+        .read_reader(read_reader),
+        .addr_wr_reader(addr_wr_reader),
+        .data_wr_out_reader(data_wr_out_reader),
+        .addr_wr(frame_addr_reader),
+        .data_wr_out(frame_pixel_reader)
+    );
+
+
+
+always@* begin
+    if(status == s_write) begin
+        selec = selec_in_sram;
+    end else if(status == s_sramdetect) begin
+        selec = selec_out_sram;
+    end else if(status == s_median_filter) begin
+        selec = selec_median;
+    end else if(status == s_mean_filter) begin
+        selec = selec_mean;
+    end else if(status == s_idle) begin
+        selec = selec_reader;
+    end else begin
+        selec = 0;
+    end
+end
+always@* begin
+    if(status == s_write) begin
+        write = write_in_sram;
+    end else if(status == s_sramdetect) begin
+        write = write_out_sram;
+    end else if(status == s_median_filter) begin
+        write = write_median;
+    end else if(status == s_mean_filter) begin
+        write = write_mean;
+    end else if(status == s_idle) begin
+        write = write_reader;
+    end else begin
+        write = 0;
+    end
+end
+always@* begin
+    if(status == s_write) begin
+        read = read_in_sram;
+    end else if(status == s_sramdetect) begin
+        read = read_out_sram;
+    end else if(status == s_median_filter) begin
+        read = read_median;
+    end else if(status == s_mean_filter) begin
+        read = read_mean;
+    end else if(status == s_idle) begin
+        read = read_reader;
+    end else begin
+        read = 0;
+    end
+end
+always@* begin
+    if(status == s_write) begin
+        data_wr_in = data_wr_in_in_sram;
+    end else if(status == s_mean_filter) begin
+        data_wr_in = data_wr_in_mean;
+    end else begin
+        data_wr_in = 16'bz;
+    end
+end
+always@* begin
+    if(status == s_write) begin
+        addr_wr = addr_wr_in_sram;
+    end else if(status == s_sramdetect) begin
+        addr_wr = addr_wr_out_sram;
+    end else if(status == s_median_filter) begin
+        addr_wr = addr_wr_median;
+    end else if(status == s_mean_filter) begin
+        addr_wr = addr_wr_mean;
+    end else if(status == s_idle) begin
+        addr_wr = addr_wr_reader;
+    end else begin
+        addr_wr = 19'bz;
+    end
+end
+
 assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
+assign data_wr_out_median   = status == s_median_filter ? data_wr_out : 16'bz;
+assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
 
 
 
@@ -458,9 +669,15 @@ assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
     );
 
 
+
+
     // from tongtong
+    wire[16:0] frame_addr_1_r_vga;
+    wire[15:0] frame_pixel_1_r_vga;
+    wire[18:0] frame_addr_reader_vga;
+    wire[15:0] frame_pixel_reader_vga;
     vga_top vga_top_0(
-        .clk(clk_in_1),//100M
+        .clk25(clk_wiz_0_clk_out1), //25MHz
         .front_in(oneside_dout1),
         .left_in(oneside_dout2),
         .right_in(oneside_dout3),
@@ -471,8 +688,46 @@ assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
         .vga_green(vga_green),
         .vga_blue(vga_blue),
         .vga_hsync(vga_hsync),
-        .vga_vsync(vga_vsync)
+        .vga_vsync(vga_vsync),
+        .frame_addr(frame_addr_1_r_vga),
+        .frame_pixel(frame_pixel_1_r_vga),
+        .frame_addr_reader(frame_addr_reader_vga),
+        .frame_pixel_reader(frame_pixel_reader_vga)
     );
 
 
+always@* begin
+    if(status == s_median_filter) begin
+        frame_1_we = frame_1_we_median;
+    end else begin
+        frame_1_we = 0;
+    end
+end
+always@* begin
+    if(status == s_median_filter) begin
+        frame_addr_1_w = frame_addr_1_w_median;
+    end else begin
+        frame_addr_1_w = 0;
+    end
+end
+always@* begin
+    if(status == s_median_filter) begin
+        frame_pixel_1_w = frame_pixel_1_w_median;
+    end else begin
+        frame_pixel_1_w = 0;
+    end
+end
+always@* begin
+    if(status == s_mean_filter) begin
+        frame_addr_1_r = frame_addr_1_r_mean;
+    end else begin
+        frame_addr_1_r = frame_addr_1_r_vga;
+    end
+end
+
+assign frame_pixel_1_r_mean = status == s_mean_filter ? frame_pixel_1_r : 0;
+assign frame_pixel_1_r_vga  = status == s_mean_filter ? 0 : frame_pixel_1_r;
+
+assign frame_addr_reader = frame_addr_reader_vga;
+assign frame_pixel_reader_vga = frame_pixel_reader;
 endmodule
