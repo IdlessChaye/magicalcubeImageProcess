@@ -336,7 +336,7 @@ module magicalImageProcess_top (
     wire done_median;
     assign enable_median = fangdou_set_side_data_button;
     MedianFilter MedianFilter_0 (
-        .wclk(cam_ov7670_ov7725_0_wclk),
+        .wclk(clk_wiz_0_clk_out1),
         .rst(rst_1),
 
         .enable(enable_median),
@@ -367,7 +367,7 @@ module magicalImageProcess_top (
     //wire done_mean;
     assign enable_mean = done_median;
     MeanFilter MeanFilter_0 (
-        .wclk(cam_ov7670_ov7725_0_wclk),
+        .wclk(clk_wiz_0_clk_out1),
         .rst(rst_1),
 
         .enable(enable_mean),
@@ -402,6 +402,37 @@ module magicalImageProcess_top (
 
 
     wire enable_color_coding;
+    reg[8:0] color1_Hue_input = 0;
+    reg[8:0] color2_Hue_input = 60;
+    reg[8:0] color3_Hue_input = 120;
+    reg[8:0] color4_Hue_input = 180;
+    reg[8:0] color5_Hue_input = 240;
+    reg[8:0] color6_Hue_input = 300;
+    always@* begin
+        case(fangdou_side_select_signals)
+            6'b111110: begin
+                color1_Hue_input = hsv25[24:16];
+            end
+            6'b111101: begin
+                color2_Hue_input = hsv25[24:16];
+            end            
+            6'b111011: begin
+                color3_Hue_input = hsv25[24:16];
+            end       
+            6'b110111: begin
+                color4_Hue_input = hsv25[24:16];
+            end            
+            6'b101111: begin
+                color5_Hue_input = hsv25[24:16];
+            end
+            6'b011111: begin
+                color6_Hue_input = hsv25[24:16];
+            end
+            default: begin
+                //nop
+            end          
+        endcase
+    end
     wire[2:0] color_coding;
     wire done_color_coding;
     assign enable_color_coding = done_rgb2hsv;
@@ -410,6 +441,13 @@ module magicalImageProcess_top (
         .rst(rst_1),
 
         .enable(enable_color_coding),
+
+        .color1_Hue_input(color1_Hue_input),
+        .color2_Hue_input(color2_Hue_input),
+        .color3_Hue_input(color3_Hue_input),
+        .color4_Hue_input(color4_Hue_input),
+        .color5_Hue_input(color5_Hue_input),
+        .color6_Hue_input(color6_Hue_input),
 
         .hsv25(hsv25),
         .color_coding(color_coding),
@@ -580,7 +618,7 @@ end
 always@* begin
     if(status == s_write) begin
         read = read_in_sram;
-    end else if(s_sramdetect) begin
+    end else if(status == s_sramdetect) begin
         read = read_out_sram;
     end else if(status == s_median_filter) begin
         read = read_median;
@@ -616,6 +654,7 @@ always@* begin
         addr_wr = 19'bz;
     end
 end
+
 assign data_wr_out_out_sram = status == s_sramdetect ? data_wr_out : 16'bz;
 assign data_wr_out_median   = status == s_median_filter ? data_wr_out : 16'bz;
 assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;

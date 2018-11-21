@@ -22,6 +22,7 @@ reg[4:0] count_write;
 
 localparam s_idle     = 4'b0000;
 localparam s_write    = 4'b0001;
+localparam s_write_wait = 4'b0010;
 reg[3:0] status = s_idle;
 
 always @ (posedge wclk) begin
@@ -38,38 +39,29 @@ always @ (posedge wclk) begin
         case(status)
             s_idle: begin
                 done <= 0;
+                selec <= 1;
+                write <= 1;
+                read <= 0;
+                addr_wr <= addr;
+                data_wr_in <= data;
+                count_write <= num_write;
                 if(enable) begin
-                    selec  <= 1;
-                    write  <= 1;
-                    read   <= 0;
-                    addr_wr  <= addr;
-                    data_wr_in <= data;
-                    count_write <= num_write;
-
-                    status <= s_write;
-                end else begin
-                    selec  <= 0;
-                    write  <= 0;
-                    read   <= 0;
-                    addr_wr  <= 0;
-                    data_wr_in <= 0;                    
-                    count_write <= 0;
+                    status <= s_write_wait;
                 end
             end
             s_write: begin
                 count_write <= count_write - 1;
                 if(count_write == 1) begin
-                    selec  <= 0;
-                    write  <= 0;
-                    read   <= 0;
-                    addr_wr  <= 0;
-                    data_wr_in <= 0;
                     done <= 1;
                     status <= s_idle;
                 end else begin
                     addr_wr  <= addr;
                     data_wr_in <= data;
+                    status <= s_write_wait;
                 end
+            end
+            s_write_wait: begin
+                status <= s_write;
             end
             default: begin
                 status <= s_idle;

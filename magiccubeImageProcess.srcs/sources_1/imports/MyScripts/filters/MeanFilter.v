@@ -107,10 +107,7 @@ always @ (posedge wclk) begin
             s_idle: begin
                 H_cnt <= 0;
                 V_cnt <= 0;
-                frame_addr_1_r <= 0;
                 enable_write <= 0;
-                addr_write <= 0;
-                data_write <= 0;
                 done <= 0;
 
                 if(enable) begin

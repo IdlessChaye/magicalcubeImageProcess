@@ -55,33 +55,22 @@ always @ (posedge wclk) begin
         case(status)
             s_idle: begin
                 done <= 0;
+                selec <= 1;
+                write <= 0;
+                read <= 1;
+                addr_wr <= addr;
+                count_read <= num_read;
                 if(enable) begin
-                    selec  <= 1;
-                    write  <= 0;
-                    read   <= 1;
-                    addr_wr  <= addr;
-                    count_read <= num_read;
-
                     status <= s_read;
-                end else begin
-                    selec  <= 0;
-                    write  <= 0;
-                    read   <= 0;
-                    addr_wr  <= 0;
-                    count_read <= 0;
                 end
             end
             s_read: begin
                 count_read <= count_read - 1;
                 if(count_read == 1) begin
-                    selec  <= 0;
-                    write  <= 0;
-                    read   <= 0;
-                    addr_wr  <= 0;
                     done <= 1;
                     status <= s_idle;
                 end else begin
-                    addr_wr  <= addr;
+                    addr_wr <= addr;
                 end
             end
             default: begin

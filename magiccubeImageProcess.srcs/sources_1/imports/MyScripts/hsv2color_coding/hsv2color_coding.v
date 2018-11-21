@@ -26,13 +26,14 @@ module hsv2color_coding (
 
     input[24:0] hsv25,
     output reg[2:0] color_coding,
-    /*
+    
     input[8:0] color1_Hue_input,
     input[8:0] color2_Hue_input,
     input[8:0] color3_Hue_input,
     input[8:0] color4_Hue_input,
     input[8:0] color5_Hue_input,
     input[8:0] color6_Hue_input,
+    /*
     input[8:0] color_margin_input,
     */
     output reg done
@@ -66,12 +67,18 @@ wire[8:0] color1_Hue,
           color5_Hue,
           color6_Hue;
 wire[8:0] color_margin;
-assign color1_Hue = color1_Hue_default; // data maybe from input
+/*assign color1_Hue = color1_Hue_default; // data maybe from input
 assign color2_Hue = color2_Hue_default;
 assign color3_Hue = color3_Hue_default;
 assign color4_Hue = color4_Hue_default;
 assign color5_Hue = color5_Hue_default;
-assign color6_Hue = color6_Hue_default;
+assign color6_Hue = color6_Hue_default;*/
+assign color1_Hue = color1_Hue_input; // data maybe from input
+assign color2_Hue = color2_Hue_input;
+assign color3_Hue = color3_Hue_input;
+assign color4_Hue = color4_Hue_input;
+assign color5_Hue = color5_Hue_input;
+assign color6_Hue = color6_Hue_input;
 assign color_margin = color_margin_default;
 
 
