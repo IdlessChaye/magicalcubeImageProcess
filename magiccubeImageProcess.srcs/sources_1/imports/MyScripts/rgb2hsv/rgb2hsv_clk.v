@@ -210,6 +210,7 @@ always@(posedge pclk) begin
                 status <= s_ready;
             end
             s_ready: begin
+                hsv_done <= 0;
                 status <= s_idle;
             end
             default: begin

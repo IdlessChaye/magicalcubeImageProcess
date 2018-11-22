@@ -29,10 +29,14 @@ module magicalImageProcess_top (
     input[7:0] OV7725_D,
     input OV7725_HREF,
     input OV7725_VSYNC,
+    output pwdm,
+    output reset_cam,
 
     input[5:0] side_select_signals,
     input load_image_data_button,    
     input set_side_data_button,
+    input cyclic_filtering_button,
+    input vga_top_button,
 
 
     inout[15:0] sram_data,
@@ -54,10 +58,11 @@ module magicalImageProcess_top (
     output [3:0] vga_green,
     output [3:0] vga_blue,
     output vga_hsync,
-    output vga_vsync,
-    output pwdm,
-    output reset_cam
+    output vga_vsync
+/*    input vga_top_en,
+    input vga_top_rst*/
     );
+
     assign pwdm = 1'b0;
     assign reset_cam = 1'b1;
     parameter H_cnt_max = 320;
@@ -96,7 +101,9 @@ module magicalImageProcess_top (
     wire[2:0] side_select_coding;
     wire fangdou_load_image_data_button;
     wire fangdou_set_side_data_button;
-    
+    wire fangdou_cyclic_filtering_button;
+    wire fangdou_vga_top_button;
+
 
     reg[26:0] oneside_dout1 = 0;
     reg[26:0] oneside_dout2 = 0;
@@ -148,7 +155,7 @@ module magicalImageProcess_top (
     reg[15:0] frame_pixel_1_w;
     reg[16:0] frame_addr_1_r;
     wire[15:0] frame_pixel_1_r;
-    blk_mem_gen_1 blk_mem_gen_1 (
+    blk_mem_gen_0 blk_mem_gen_0 (
           .clka(cam_ov7670_ov7725_0_wclk),    // input wire clka
           .wea(frame_1_we),      // input wire [0:0] wea
           .addra(frame_addr_1_w),  // input wire [16:0] addra
@@ -213,8 +220,21 @@ module magicalImageProcess_top (
         .fangdou_button(fangdou_set_side_data_button)
     );
 
+    fangdou fangdou_8 (
+        .clk(clk_in_1),
+        .button(cyclic_filtering_button),
+        .fangdou_button(fangdou_cyclic_filtering_button)
+    );
+    
+    fangdou fangdou_9 (
+        .clk(clk_in_1),
+        .button(vga_top_button),
+        .fangdou_button(fangdou_vga_top_button)
+    );
 
 
+    localparam[3:0] max_num_cyclic_filtering = 10;
+    reg[3:0] num_cyclic_filtering = 0; // the rest of num of cyclic filtering
 
     localparam s_idle           = 4'b0000;
     localparam s_init           = 4'b0001;
@@ -271,8 +291,8 @@ module magicalImageProcess_top (
     wire[8:0] position_coding;
     wire find_out_sram;
     wire done_out_sram;
-    wire done_mean;   
-    assign enable_out_sram = done_mean;
+    wire done_mean;
+    assign enable_out_sram = done_mean && (num_cyclic_filtering == 4'd1 ? 1'b1 : 1'b0);
     wire done_data_set;
     assign continue_out_sram = done_data_set;
     image_out_sramdetect #(.H_cnt_max(H_cnt_max),
@@ -334,9 +354,9 @@ module magicalImageProcess_top (
     wire[16:0] frame_addr_1_w_median;
     wire[15:0] frame_pixel_1_w_median;
     wire done_median;
-    assign enable_median = fangdou_set_side_data_button;
+    assign enable_median = fangdou_set_side_data_button || fangdou_cyclic_filtering_button || (done_mean && (num_cyclic_filtering==4'd1 ? 1'b0: 1'b1));
     MedianFilter MedianFilter_0 (
-        .wclk(clk_wiz_0_clk_out1),
+        .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
         .enable(enable_median),
@@ -367,7 +387,7 @@ module magicalImageProcess_top (
     //wire done_mean;
     assign enable_mean = done_median;
     MeanFilter MeanFilter_0 (
-        .wclk(clk_wiz_0_clk_out1),
+        .wclk(cam_ov7670_ov7725_0_wclk),
         .rst(rst_1),
 
         .enable(enable_mean),
@@ -480,6 +500,7 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
     if(rst_1) begin
         done_top <= 0;
         last_little_turn <= 0;
+        num_cyclic_filtering <= 0;
         status <= s_idle;
     end else begin
         case(status)
@@ -488,7 +509,11 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 last_little_turn <= 0;
                 if(enable_in_sram) begin
                     status <= s_write;
-                end else if(enable_median) begin
+                end else if(fangdou_set_side_data_button) begin
+                    num_cyclic_filtering <= 1;
+                    status <= s_median_filter;
+                end else if(fangdou_cyclic_filtering_button) begin
+                    num_cyclic_filtering <= max_num_cyclic_filtering;
                     status <= s_median_filter;
                 end
             end
@@ -504,7 +529,12 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
             end
             s_mean_filter: begin
                 if(done_mean) begin
-                    status <= s_sramdetect; 
+                    num_cyclic_filtering <= num_cyclic_filtering - 1;
+                    if(num_cyclic_filtering == 1) begin
+                        status <= s_sramdetect; 
+                    end else begin
+                        status <= s_median_filter;
+                    end
                 end
             end
             s_sramdetect: begin
@@ -553,6 +583,7 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 status <= s_ready;
             end
             s_ready: begin
+                done_top <= 0;
                 status <= s_idle;
             end            
             default: begin
@@ -676,14 +707,21 @@ assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
     wire[15:0] frame_pixel_1_r_vga;
     wire[18:0] frame_addr_reader_vga;
     wire[15:0] frame_pixel_reader_vga;
+    wire vga_top_en;
+    wire vga_top_rst;
+    assign vga_top_en = 1;
+    assign vga_top_rst = 1;
     vga_top vga_top_0(
-        .clk25(clk_wiz_0_clk_out1), //25MHz
-        .front_in(oneside_dout1),
-        .left_in(oneside_dout2),
-        .right_in(oneside_dout3),
-        .back_in(oneside_dout4),
-        .above_in(oneside_dout5),
-        .below_in(oneside_dout6),
+        .clk(clk_in_1), //100MHz
+        .en(vga_top_en),
+        .rst(vga_top_rst),
+        .button(fangdou_vga_top_button),
+        .front(oneside_dout1),
+        .left(oneside_dout2),
+        .right(oneside_dout3),
+        .back(oneside_dout4),
+        .above(oneside_dout5),
+        .below(oneside_dout6),
         .vga_red(vga_red),
         .vga_green(vga_green),
         .vga_blue(vga_blue),

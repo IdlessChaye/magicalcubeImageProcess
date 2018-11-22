@@ -1,5 +1,6 @@
- /* this program can show the code of colorcoding through vga 
-    Copyright (C) 2018 Tongtong
+`timescale 1ns / 1ps
+ /* 
+    Copyright (C) 2018 Tongtong, github IdlessChaya
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,7 +17,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-`timescale 1ns / 1ns
+
 module input_trans(
 input [26:0]front_in,
 input [26:0]left_in,

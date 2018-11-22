@@ -236,8 +236,13 @@ set_property PACKAGE_PIN R17 [get_ports set_side_data_button]
 set_property IOSTANDARD LVCMOS33 [get_ports set_side_data_button]
 
 
+#cyclic_filtering_button S2
+set_property PACKAGE_PIN R15 [get_ports cyclic_filtering_button]
+set_property IOSTANDARD LVCMOS33 [get_ports cyclic_filtering_button]
 
-
+#vga_top_button S3
+set_property PACKAGE_PIN V1 [get_ports vga_top_button]
+set_property IOSTANDARD LVCMOS33 [get_ports vga_top_button]
 
 
 

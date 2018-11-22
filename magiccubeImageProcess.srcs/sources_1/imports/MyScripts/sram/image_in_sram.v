@@ -121,6 +121,7 @@ always@(posedge wclk) begin
                 status <= s_ready;
             end
             s_ready: begin
+                done <= 0;
                 status <= s_idle;
             end
             default: begin

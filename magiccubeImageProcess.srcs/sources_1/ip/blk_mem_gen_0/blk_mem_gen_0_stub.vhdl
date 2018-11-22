@@ -1,18 +1,18 @@
 -- Copyright 1986-2017 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2017.4 (win64) Build 2086221 Fri Dec 15 20:55:39 MST 2017
--- Date        : Tue Nov 20 16:37:44 2018
+-- Date        : Thu Nov 22 14:06:10 2018
 -- Host        : PC-20170807WOKV running 64-bit Service Pack 1  (build 7601)
 -- Command     : write_vhdl -force -mode synth_stub
---               g:/FPGA_Projects/team_MagicCube/magiccubeImageProcess/magiccubeImageProcess.srcs/sources_1/ip/blk_mem_gen_1/blk_mem_gen_1_stub.vhdl
--- Design      : blk_mem_gen_1
+--               g:/FPGA_Projects/team_MagicCube/magiccubeImageProcess/magiccubeImageProcess.srcs/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0_stub.vhdl
+-- Design      : blk_mem_gen_0
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7a35tcsg324-1
 -- --------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity blk_mem_gen_1 is
+entity blk_mem_gen_0 is
   Port ( 
     clka : in STD_LOGIC;
     wea : in STD_LOGIC_VECTOR ( 0 to 0 );
@@ -23,9 +23,9 @@ entity blk_mem_gen_1 is
     doutb : out STD_LOGIC_VECTOR ( 15 downto 0 )
   );
 
-end blk_mem_gen_1;
+end blk_mem_gen_0;
 
-architecture stub of blk_mem_gen_1 is
+architecture stub of blk_mem_gen_0 is
 attribute syn_black_box : boolean;
 attribute black_box_pad_pin : string;
 attribute syn_black_box of stub : architecture is true;
