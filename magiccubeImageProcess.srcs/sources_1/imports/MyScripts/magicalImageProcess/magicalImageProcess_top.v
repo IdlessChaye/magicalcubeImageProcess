@@ -69,7 +69,6 @@ module magicalImageProcess_top (
     parameter V_cnt_max = 240;
 
     wire clk_wiz_0_clk_out1;
-    wire clk_wiz_0_clk_out2;
     wire clk_in_1;
     assign clk_in_1 = clk_in;
     wire rst_1;
@@ -81,14 +80,16 @@ module magicalImageProcess_top (
 
 
     assign OV7725_XCLK = clk_wiz_0_clk_out1;
-    wire pclk_1;
-    wire [7:0]d_1;
-    wire href_1;
-    wire vsync_1;
-    assign pclk_1 = OV7725_PCLK;    
-    assign d_1 = OV7725_D[7:0];
-    assign href_1 = OV7725_HREF;
-    assign vsync_1 = OV7725_VSYNC; 
+    reg pclk_1;
+    reg [7:0]d_1;
+    reg href_1;
+    reg vsync_1;
+    always@* begin
+        pclk_1 = OV7725_PCLK;    
+        d_1 = OV7725_D[7:0];
+        href_1 = OV7725_HREF;
+        vsync_1 = OV7725_VSYNC; 
+    end
 
     wire [16:0]cam_ov7670_ov7725_0_addr;
     wire [15:0]cam_ov7670_ov7725_0_dout;
@@ -122,8 +123,7 @@ module magicalImageProcess_top (
 
     freq_divide freq_divide_0(
         .clki(clk_in_1),
-        .clko_25MHz(clk_wiz_0_clk_out1),
-        .clko_10MHz(clk_wiz_0_clk_out2)
+        .clko_25MHz(clk_wiz_0_clk_out1)
     );
 
 
@@ -225,7 +225,7 @@ module magicalImageProcess_top (
         .button(cyclic_filtering_button),
         .fangdou_button(fangdou_cyclic_filtering_button)
     );
-    
+
     fangdou fangdou_9 (
         .clk(clk_in_1),
         .button(vga_top_button),
@@ -233,7 +233,7 @@ module magicalImageProcess_top (
     );
 
 
-    localparam[3:0] max_num_cyclic_filtering = 10;
+    localparam[3:0] max_num_cyclic_filtering = 2;
     reg[3:0] num_cyclic_filtering = 0; // the rest of num of cyclic filtering
 
     localparam s_idle           = 4'b0000;
@@ -494,7 +494,7 @@ module magicalImageProcess_top (
     );
 
 
-
+reg vga_top_en;
 reg last_little_turn;
 always@(posedge cam_ov7670_ov7725_0_wclk) begin
     if(rst_1) begin
@@ -508,6 +508,7 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 done_top <= 0;
                 last_little_turn <= 0;
                 if(enable_in_sram) begin
+                    //vga_top_en <= 1;
                     status <= s_write;
                 end else if(fangdou_set_side_data_button) begin
                     num_cyclic_filtering <= 1;
@@ -707,9 +708,8 @@ assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
     wire[15:0] frame_pixel_1_r_vga;
     wire[18:0] frame_addr_reader_vga;
     wire[15:0] frame_pixel_reader_vga;
-    wire vga_top_en;
+    //wire vga_top_en;
     wire vga_top_rst;
-    assign vga_top_en = 1;
     assign vga_top_rst = 1;
     vga_top vga_top_0(
         .clk(clk_in_1), //100MHz

@@ -27,7 +27,7 @@ set_property IOSTANDARD LVCMOS33 [get_ports rst]
 #OV7725 Data signals
 set_property PACKAGE_PIN H14 [get_ports {OV7725_D[7]}]
 set_property PACKAGE_PIN G14 [get_ports {OV7725_D[6]}]
-set_property PACKAGE_PIN F14 [get_ports {OV7725_D[5]}]
+set_property PACKAGE_PIN F15 [get_ports {OV7725_D[5]}]
 set_property PACKAGE_PIN F16 [get_ports {OV7725_D[4]}]
 set_property PACKAGE_PIN H16 [get_ports {OV7725_D[3]}]
 set_property PACKAGE_PIN G16 [get_ports {OV7725_D[2]}]
