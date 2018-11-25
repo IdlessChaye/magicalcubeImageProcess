@@ -76,7 +76,7 @@ reg[4:0] mean_B;
 reg[9:0] sum_R;
 reg[10:0] sum_G;
 reg[9:0] sum_B;
-reg[14:0] sum_for_div_R; // 32 + 8 + 1 / 1024
+reg[14:0] sum_for_div_R; // 32 + 8 + 1 / 1024 // 64 + 32 + 16 + 2 / 1024
 reg[15:0] sum_for_div_G;
 reg[14:0] sum_for_div_B;
 
@@ -119,7 +119,7 @@ always @ (posedge wclk) begin
                     out_of_range <= 1;
                     status <= s_set_data;
                 end else begin
-                    frame_addr_1_r <= (V_cnt + 2) * H_cnt_max + H_cnt + 2; // zuoshangjiao de nengsuanwanma?
+                    frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt - 1;// zuoshangjiao de nengsuanwanma?
                     cnt_read_square <= N*N - 1;
                     sum_R <= 0;
                     sum_G <= 0;
@@ -132,76 +132,76 @@ always @ (posedge wclk) begin
                 cnt_read_square <= cnt_read_square - 1;
                 case(cnt_read_square)
                     24: begin
-                        frame_addr_1_r <= (V_cnt - 2) * H_cnt_max + H_cnt - 2;
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;                    
                     end
                     23: begin
-                        frame_addr_1_r <= (V_cnt - 2) * H_cnt_max + H_cnt - 1;
-                    end
-                    22: begin
-                        frame_addr_1_r <= (V_cnt - 2) * H_cnt_max + H_cnt;
-                    end
-                    21: begin
-                        frame_addr_1_r <= (V_cnt - 2) * H_cnt_max + H_cnt + 1;
-                    end
-                    20: begin
-                        frame_addr_1_r <= (V_cnt - 2) * H_cnt_max + H_cnt + 2;
-                    end
-                    19: begin
-                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt - 2;
-                    end
-                    18: begin
-                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt - 1;
-                    end
-                    17: begin
                         frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt;
                     end
-                    16: begin
+                    22: begin
                         frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt + 1;
                     end
-                    15: begin
-                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt + 2;
+                    21: begin
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt + 1;                   
                     end
-                    14: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 2;
-                    end
-                    13: begin
+                    20: begin
                         frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
                     end
-                    12: begin
+                    19: begin
                         frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;
                     end
+                    18: begin
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;
+                    end
+                    17: begin
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt;
+                    end
+                    16: begin
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;                    
+                    end
+                    15: begin
+                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt;
+                    end
+                    14: begin
+                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt + 1;
+                    end
+                    13: begin
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt + 1;                   
+                    end
+                    12: begin
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
+                    end
                     11: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt + 1;
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;
                     end
                     10: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt + 2;
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;
                     end
                     9: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt - 2;
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt;
                     end
                     8: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt - 1;
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
                     end
                     7: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt;
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;                        
                     end
                     6: begin
                         frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;                    
                     end
                     5: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 2;
+                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt;
                     end
                     4: begin
-                        frame_addr_1_r <= (V_cnt + 2) * H_cnt_max + H_cnt - 2;
+                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt + 1;
                     end
                     3: begin
-                        frame_addr_1_r <= (V_cnt + 2) * H_cnt_max + H_cnt - 1;                     
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt + 1;                   
                     end
                     2: begin
-                        frame_addr_1_r <= (V_cnt + 2) * H_cnt_max + H_cnt;
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
                     end
                     1: begin
-                        frame_addr_1_r <= (V_cnt + 2) * H_cnt_max + H_cnt + 1;
+                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;
                     end
                     default: begin
                         frame_addr_1_r <= 0;

@@ -56,25 +56,25 @@ reg[15:0] data_wr_out_reg;
 
 reg[9:0] V_cnt,H_cnt;
 
-
-localparam[9:0] h_zuoshang=40,
-                h_zhongshang=120, 
-                h_youshang=200,     
-                h_zuozhong=40,
-                h_zhongzhong=120,
-                h_youzhong=200,
-                h_zuoxia=40,
-                h_zhongxia=120, 
-                h_youxia=200;
-localparam[9:0] v_zuoshang=40,
-                v_zhongshang=40,
-                v_youshang=40,
-                v_zuozhong=120,
-                v_zhongzhong=120,
-                v_youzhong=120,
-                v_zuoxia=200,
-                v_zhongxia=200,
-                v_youxia=200;
+localparam pixel_dis = 50;
+localparam[9:0] h_zuoshang=pixel_dis,
+                h_zhongshang=2*pixel_dis, 
+                h_youshang=3*pixel_dis,     
+                h_zuozhong=pixel_dis,
+                h_zhongzhong=2*pixel_dis,
+                h_youzhong=3*pixel_dis,
+                h_zuoxia=pixel_dis,
+                h_zhongxia=2*pixel_dis, 
+                h_youxia=3*pixel_dis;
+localparam[9:0] v_zuoshang=pixel_dis,
+                v_zhongshang=pixel_dis,
+                v_youshang=pixel_dis,
+                v_zuozhong=2*pixel_dis,
+                v_zhongzhong=2*pixel_dis,
+                v_youzhong=2*pixel_dis,
+                v_zuoxia=3*pixel_dis,
+                v_zhongxia=3*pixel_dis,
+                v_youxia=3*pixel_dis;
 
 
 localparam s_idle           = 4'b0000;
@@ -161,8 +161,8 @@ always@(posedge wclk) begin
                 read_out_sram  <= 0;                  
                 addr_wr_out_sram <= addr_wr_out_sram + 1; // next addr            
 
-                if(H_cnt == H_cnt_max) begin //this H_cnt and V_cnt
-                    if(V_cnt == V_cnt_max) begin
+                if(H_cnt == H_cnt_max - 1) begin //this H_cnt and V_cnt
+                    if(V_cnt == V_cnt_max - 1) begin
                         H_cnt <= 0;
                         V_cnt <= 0;
                         status <= done;
@@ -188,40 +188,67 @@ always@(posedge wclk) begin
             end
             s_detect: begin
                 if(H_cnt==h_zuoshang&&V_cnt==v_zuoshang) begin
-                    count_sum_residue <= 4;
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;
                     position_coding <= 9'd1;
                     status <= s_residue;
                 end else if(H_cnt==h_zhongshang&&V_cnt==v_zhongshang) begin
-                    count_sum_residue <= 4;
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;
                     position_coding <= 9'd2;
                     status <= s_residue;
                 end else if(H_cnt==h_youshang&&V_cnt==v_youshang) begin
-                    count_sum_residue <= 4;
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;
                     position_coding <= 9'd3;
                     status <= s_residue;
                 end else if(H_cnt==h_zuozhong&&V_cnt==v_zuozhong) begin
-                    count_sum_residue <= 4;              
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;            
                     position_coding <= 9'd4;
                     status <= s_residue;
                 end else if(H_cnt==h_zhongzhong&&V_cnt==v_zhongzhong) begin
-                    count_sum_residue <= 4;              
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;          
                     position_coding <= 9'd5;
                     status <= s_residue;
                 end else if(H_cnt==h_youzhong&&V_cnt==v_youzhong) begin
-                    count_sum_residue <= 4;          
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0; 
                     position_coding <= 9'd6;
                     status <= s_residue;
                 end else if(H_cnt==h_zuoxia&&V_cnt==v_zuoxia) begin
-                    count_sum_residue <= 4;        
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;       
                     position_coding <= 9'd7;
                     status <= s_residue;                  
                 end else if(H_cnt==h_zhongxia&&V_cnt==v_zhongxia) begin
-                    count_sum_residue <= 4;        
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;       
                     position_coding <= 9'd8;
                     status <= s_residue;            
                 end else if(H_cnt==h_youxia&&V_cnt==v_youxia) begin
                     search_finish <= 1;
-                    count_sum_residue <= 4;            
+                    count_sum_residue <= 1;
+                    r_7 <= 0;
+                    g_8 <= 0;
+                    b_7 <= 0;          
                     position_coding <= 9'd9;
                     status <= s_residue;
                 end else begin
@@ -248,7 +275,8 @@ always@(posedge wclk) begin
                 count_sum_residue <= count_sum_residue - 1;
             end
             s_dataready: begin
-                rgb565 <= {r_7[6:2],g_8[7:2],b_7[6:2]};
+                /*rgb565 <= {r_7[6:2],g_8[7:2],b_7[6:2]};*/
+                rgb565 <= {r_7[4:0],g_8[5:0],b_7[4:0]};
                 status <= s_find;
             end
             s_find: begin

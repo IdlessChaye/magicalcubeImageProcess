@@ -106,7 +106,7 @@ module magicalImageProcess_top (
     wire fangdou_vga_top_button;
 
 
-    reg[26:0] oneside_dout1 = 0;
+    reg[26:0] oneside_dout1 = 27'b000000000000110110000110110;
     reg[26:0] oneside_dout2 = 0;
     reg[26:0] oneside_dout3 = 0;
     reg[26:0] oneside_dout4 = 0;
@@ -384,7 +384,7 @@ module magicalImageProcess_top (
     wire[15:0] data_wr_in_mean;
     wire[16:0] frame_addr_1_r_mean;
     wire[15:0] frame_pixel_1_r_mean;
-    //wire done_mean;
+
     assign enable_mean = done_median;
     MeanFilter MeanFilter_0 (
         .wclk(cam_ov7670_ov7725_0_wclk),
@@ -421,38 +421,64 @@ module magicalImageProcess_top (
     );
 
 
-    wire enable_color_coding;
-    reg[8:0] color1_Hue_input = 0;
-    reg[8:0] color2_Hue_input = 60;
-    reg[8:0] color3_Hue_input = 120;
-    reg[8:0] color4_Hue_input = 180;
-    reg[8:0] color5_Hue_input = 240;
-    reg[8:0] color6_Hue_input = 300;
-    always@* begin
+
+    reg[8:0] color1_Hue_input = 340; // red
+    reg[8:0] color2_Hue_input = 5; // orange
+    reg[8:0] color3_Hue_input = 80; // yellow
+    reg[8:0] color4_Hue_input = 170; // green
+    reg[8:0] color5_Hue_input = 230; // blue
+    reg[8:0] color6_Hue_input = 340; // also red
+    // num 6 color is white code:2'b110
+    reg[7:0] color1_S_input = 255;
+    reg[7:0] color2_S_input = 255;
+    reg[7:0] color3_S_input = 255;
+    reg[7:0] color4_S_input = 255;
+    reg[7:0] color5_S_input = 255;
+    reg[7:0] color6_S_input = 255;
+    reg[7:0] color1_V_input = 255;
+    reg[7:0] color2_V_input = 255;
+    reg[7:0] color3_V_input = 255;
+    reg[7:0] color4_V_input = 255;
+    reg[7:0] color5_V_input = 255;
+    reg[7:0] color6_V_input = 255;
+    always@(posedge cam_ov7670_ov7725_0_wclk) begin
         case(fangdou_side_select_signals)
             6'b111110: begin
-                color1_Hue_input = hsv25[24:16];
+                color1_Hue_input <= hsv25[24:16];
+                color1_S_input <= hsv25[15:8];
+                color1_V_input <= hsv25[7:0];
             end
             6'b111101: begin
-                color2_Hue_input = hsv25[24:16];
+                color2_Hue_input <= hsv25[24:16];
+                color2_S_input <= hsv25[15:8];
+                color2_V_input <= hsv25[7:0];
             end            
             6'b111011: begin
-                color3_Hue_input = hsv25[24:16];
+                color3_Hue_input <= hsv25[24:16];
+                color3_S_input <= hsv25[15:8];
+                color3_V_input <= hsv25[7:0];
             end       
             6'b110111: begin
-                color4_Hue_input = hsv25[24:16];
+                color4_Hue_input <= hsv25[24:16];
+                color4_S_input <= hsv25[15:8];
+                color4_V_input <= hsv25[7:0];
             end            
             6'b101111: begin
-                color5_Hue_input = hsv25[24:16];
+                color5_Hue_input <= hsv25[24:16];
+                color5_S_input <= hsv25[15:8];
+                color5_V_input <= hsv25[7:0];
             end
             6'b011111: begin
-                color6_Hue_input = hsv25[24:16];
+                color6_Hue_input <= hsv25[24:16];
+                color6_S_input <= hsv25[15:8];
+                color6_V_input <= hsv25[7:0];
             end
             default: begin
                 //nop
             end          
         endcase
     end
+    wire enable_color_coding;
     wire[2:0] color_coding;
     wire done_color_coding;
     assign enable_color_coding = done_rgb2hsv;
@@ -468,6 +494,18 @@ module magicalImageProcess_top (
         .color4_Hue_input(color4_Hue_input),
         .color5_Hue_input(color5_Hue_input),
         .color6_Hue_input(color6_Hue_input),
+        .color1_S_input(color1_S_input),
+        .color2_S_input(color2_S_input),
+        .color3_S_input(color3_S_input),
+        .color4_S_input(color4_S_input),
+        .color5_S_input(color5_S_input),
+        .color6_S_input(color6_S_input),
+        .color1_V_input(color1_V_input),
+        .color2_V_input(color2_V_input),
+        .color3_V_input(color3_V_input),
+        .color4_V_input(color4_V_input),
+        .color5_V_input(color5_V_input),
+        .color6_V_input(color6_V_input),
 
         .hsv25(hsv25),
         .color_coding(color_coding),
@@ -696,7 +734,7 @@ assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
     super_stop_watch_test super_stop_watch_test_0 (
         .en0(en0),.en1(en1),
         .sseg0(sseg0),.sseg1(sseg1),
-        .show_data({oneside_dout2[4:0],oneside_dout1}),
+        .show_data({0,color2_V_input[7:4],color2_V_input[3:0],color2_S_input[7:4],color2_S_input[3:0],3'b000,color2_Hue_input[8],color2_Hue_input[7:4],color2_Hue_input[3:0]}),
         .clk(clk_in_1)
     );
 
@@ -765,6 +803,7 @@ end
 
 assign frame_pixel_1_r_mean = status == s_mean_filter ? frame_pixel_1_r : 0;
 assign frame_pixel_1_r_vga  = status == s_mean_filter ? 0 : frame_pixel_1_r;
+/*assign frame_pixel_1_r_vga = rgb565;*/
 
 assign frame_addr_reader = frame_addr_reader_vga;
 assign frame_pixel_reader_vga = frame_pixel_reader;

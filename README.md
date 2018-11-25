@@ -73,3 +73,8 @@ GPLv2.0
 1. filter modules are finished and tested.
 2. debug kill me one day
 3. merge denoise to master
+
+#### 18.11.26
+
+1. debug...
+2. accuary：98%

@@ -33,9 +33,18 @@ module hsv2color_coding (
     input[8:0] color4_Hue_input,
     input[8:0] color5_Hue_input,
     input[8:0] color6_Hue_input,
-    /*
-    input[8:0] color_margin_input,
-    */
+    input[7:0] color1_S_input,
+    input[7:0] color2_S_input,
+    input[7:0] color3_S_input,
+    input[7:0] color4_S_input,
+    input[7:0] color5_S_input,
+    input[7:0] color6_S_input,
+    input[7:0] color1_V_input,
+    input[7:0] color2_V_input,
+    input[7:0] color3_V_input,
+    input[7:0] color4_V_input,
+    input[7:0] color5_V_input,
+    input[7:0] color6_V_input,
     output reg done
 );
 
@@ -43,52 +52,34 @@ reg[8:0] Hue;
 reg[7:0] Saturation;
 reg[7:0] Value;
 
-localparam  color_white_coding = 3'b000,
-            color_black_coding = 3'b111,
-            color1_coding = 3'b001,
+localparam  color1_coding = 3'b001,
             color2_coding = 3'b010,
             color3_coding = 3'b011,
             color4_coding = 3'b100,
             color5_coding = 3'b101,
-            color6_coding = 3'b110;
-
-localparam  color1_Hue_default = 0,
-            color2_Hue_default = 60,
-            color3_Hue_default = 120,
-            color4_Hue_default = 180,
-            color5_Hue_default = 240,
-            color6_Hue_default = 300;
-localparam  color_margin_default = 60; 
-
-wire[8:0] color1_Hue,
-          color2_Hue,
-          color3_Hue,
-          color4_Hue,
-          color5_Hue,
-          color6_Hue;
-wire[8:0] color_margin;
-/*assign color1_Hue = color1_Hue_default; // data maybe from input
-assign color2_Hue = color2_Hue_default;
-assign color3_Hue = color3_Hue_default;
-assign color4_Hue = color4_Hue_default;
-assign color5_Hue = color5_Hue_default;
-assign color6_Hue = color6_Hue_default;*/
-assign color1_Hue = color1_Hue_input; // data maybe from input
-assign color2_Hue = color2_Hue_input;
-assign color3_Hue = color3_Hue_input;
-assign color4_Hue = color4_Hue_input;
-assign color5_Hue = color5_Hue_input;
-assign color6_Hue = color6_Hue_input;
-assign color_margin = color_margin_default;
+            color6_coding = 3'b001;  // also red
+localparam  color_margin_default = 25;
 
 
-reg[8:0] dis_color1,
+reg[7:0] dis_S_1,
+         dis_S_2,
+         dis_S_3,
+         dis_S_4,
+         dis_S_5,
+         dis_S_6;
+reg[7:0] dis_V_1,
+         dis_V_2,
+         dis_V_3,
+         dis_V_4,
+         dis_V_5,
+         dis_V_6;
+reg[9:0] dis_color1,
          dis_color2,
          dis_color3,
          dis_color4,
          dis_color5,
          dis_color6;
-reg[8:0] min1_1,
+reg[9:0] min1_1,
          min1_2,
          min1_3,
          min2,
@@ -99,6 +90,8 @@ localparam s_idle    = 4'b0000;
 localparam s_init    = 4'b0001;
 localparam s_dis1    = 4'b1001;
 localparam s_dis2    = 4'b1101;
+localparam s_sum1    = 4'b1111;
+localparam s_sum2    = 4'b1011;
 localparam s_min1    = 4'b0101;
 localparam s_min2    = 4'b0111;
 localparam s_min3    = 4'b0011;
@@ -110,7 +103,7 @@ reg[3:0] status = s_idle;
 always@(posedge clk) begin
     if(rst) begin
         done <= 0;
-        color_coding <= color_black_coding;
+        color_coding <= color1_coding;
         Hue <= 0;
         Saturation <= 0;
         Value <= 0;
@@ -138,48 +131,58 @@ always@(posedge clk) begin
                 status <= s_dis1;
             end
             s_dis1: begin
-                if(Saturation < color_margin) begin
-                    if(Value < color_margin) begin
-                        color_coding <= color_black_coding;
-                        status <= s_done;
-                    end else begin
-                        color_coding <= color_white_coding;
-                        status <= s_done;                        
-                    end
+                if(Saturation <= color_margin_default) begin
+                    color_coding <= 3'b110;
+                    status <= s_done;
                 end else begin
-                    if(color1_Hue < Hue) begin
-                        dis_color1 <= Hue - color1_Hue;
-                    end else begin
-                        dis_color1 <= color1_Hue - Hue;
-                    end
-                    if(color2_Hue < Hue) begin
-                        dis_color2 <= Hue - color2_Hue;
-                    end else begin
-                        dis_color2 <= color2_Hue - Hue;
-                    end                   
-                    if(color3_Hue < Hue) begin
-                        dis_color3 <= Hue - color3_Hue;
-                    end else begin
-                        dis_color3 <= color3_Hue - Hue;
-                    end                    
-                    if(color4_Hue < Hue) begin
-                        dis_color4 <= Hue - color4_Hue;
-                    end else begin
-                        dis_color4 <= color4_Hue - Hue;
-                    end                    
-                    if(color5_Hue < Hue) begin
-                        dis_color5 <= Hue - color5_Hue;
-                    end else begin
-                        dis_color5 <= color5_Hue - Hue;
-                    end                    
-                    if(color6_Hue < Hue) begin
-                        dis_color6 <= Hue - color6_Hue;
-                    end else begin
-                        dis_color6 <= color6_Hue - Hue;
-                    end                    
-
                     status <= s_dis2;
+
+                    if(color1_Hue_input < Hue) begin
+                        dis_color1 <= Hue - color1_Hue_input;
+                    end else begin
+                        dis_color1 <= color1_Hue_input - Hue;
+                    end
+                    if(color2_Hue_input < Hue) begin
+                        dis_color2 <= Hue - color2_Hue_input;
+                    end else begin
+                        dis_color2 <= color2_Hue_input - Hue;
+                    end                   
+                    if(color3_Hue_input < Hue) begin
+                        dis_color3 <= Hue - color3_Hue_input;
+                    end else begin
+                        dis_color3 <= color3_Hue_input - Hue;
+                    end                    
+                    if(color4_Hue_input < Hue) begin
+                        dis_color4 <= Hue - color4_Hue_input;
+                    end else begin
+                        dis_color4 <= color4_Hue_input - Hue;
+                    end                    
+                    if(color5_Hue_input < Hue) begin
+                        dis_color5 <= Hue - color5_Hue_input;
+                    end else begin
+                        dis_color5 <= color5_Hue_input - Hue;
+                    end                    
+                    if(color6_Hue_input < Hue) begin
+                        dis_color6 <= Hue - color6_Hue_input;
+                    end else begin
+                        dis_color6 <= color6_Hue_input - Hue;
+                    end                    
                 end
+
+                dis_S_1 <= 255 - color1_S_input;
+                dis_S_2 <= 255 - color2_S_input;
+                dis_S_3 <= 255 - color3_S_input;
+                dis_S_4 <= 255 - color4_S_input;
+                dis_S_5 <= 255 - color5_S_input;
+                dis_S_6 <= 255 - color6_S_input;
+
+                dis_V_1 <= 255 - color1_V_input;
+                dis_V_2 <= 255 - color2_V_input;
+                dis_V_3 <= 255 - color3_V_input;
+                dis_V_4 <= 255 - color4_V_input;
+                dis_V_5 <= 255 - color5_V_input;
+                dis_V_6 <= 255 - color6_V_input;
+
             end
             s_dis2: begin
                 if(dis_color1 > 180) begin
@@ -203,6 +206,26 @@ always@(posedge clk) begin
 
                 status <= s_min1;
             end   
+            s_sum1: begin
+                dis_color1 <= dis_color1 + {2'b0,dis_S_1};
+                dis_color2 <= dis_color2 + {2'b0,dis_S_2};
+                dis_color3 <= dis_color3 + {2'b0,dis_S_3};
+                dis_color4 <= dis_color4 + {2'b0,dis_S_4};
+                dis_color5 <= dis_color5 + {2'b0,dis_S_5};
+                dis_color6 <= dis_color6 + {2'b0,dis_S_6};
+
+                status <= s_sum2;
+            end
+            s_sum2: begin
+                dis_color1 <= dis_color1 + {2'b0,dis_V_1};
+                dis_color2 <= dis_color2 + {2'b0,dis_V_2};
+                dis_color3 <= dis_color3 + {2'b0,dis_V_3};
+                dis_color4 <= dis_color4 + {2'b0,dis_V_4};
+                dis_color5 <= dis_color5 + {2'b0,dis_V_5};
+                dis_color6 <= dis_color6 + {2'b0,dis_V_6};
+
+                status <= s_min1;
+            end
             s_min1: begin
                 if(dis_color1 < dis_color2) begin
                     min1_1 <= dis_color1;
@@ -261,7 +284,7 @@ always@(posedge clk) begin
                         color_coding <= color6_coding;
                     end
                     default: begin
-                        color_coding <= color_black_coding;
+                        color_coding <= color1_coding;
                     end
                 endcase
 

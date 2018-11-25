@@ -282,3 +282,4 @@ set_property IOSTANDARD LVCMOS33 [get_ports pwdm]
 set_property IOSTANDARD LVCMOS33 [get_ports reset_cam]
 set_property PACKAGE_PIN E16 [get_ports pwdm]
 set_property PACKAGE_PIN E15 [get_ports reset_cam]
+
