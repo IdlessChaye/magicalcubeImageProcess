@@ -45,6 +45,8 @@ module hsv2color_coding (
     input[7:0] color4_V_input,
     input[7:0] color5_V_input,
     input[7:0] color6_V_input,
+    input[7:0] color_S_margin_default,
+
     output reg done
 );
 
@@ -52,13 +54,15 @@ reg[8:0] Hue;
 reg[7:0] Saturation;
 reg[7:0] Value;
 
+// white 3'b110 black 3'b010
 localparam  color1_coding = 3'b001,
-            color2_coding = 3'b010,
+            color2_coding = 3'b001,
             color3_coding = 3'b011,
             color4_coding = 3'b100,
             color5_coding = 3'b101,
             color6_coding = 3'b001;  // also red
-localparam  color_margin_default = 25;
+//reg[7:0]    color_S_margin_default = 45;
+localparam  color_V_margin_default = 96;
 
 
 reg[7:0] dis_S_1,
@@ -131,8 +135,11 @@ always@(posedge clk) begin
                 status <= s_dis1;
             end
             s_dis1: begin
-                if(Saturation <= color_margin_default) begin
-                    color_coding <= 3'b110;
+                if(Saturation <= color_S_margin_default) begin
+                    if(Value <= color_V_margin_default)
+                        color_coding <= 3'b010; // black
+                    else
+                        color_coding <= 3'b110; // white
                     status <= s_done;
                 end else begin
                     status <= s_dis2;

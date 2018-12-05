@@ -244,6 +244,9 @@ set_property IOSTANDARD LVCMOS33 [get_ports cyclic_filtering_button]
 set_property PACKAGE_PIN V1 [get_ports vga_top_button]
 set_property IOSTANDARD LVCMOS33 [get_ports vga_top_button]
 
+#show_bram_button S4
+set_property PACKAGE_PIN U4 [get_ports show_bram_button]
+set_property IOSTANDARD LVCMOS33 [get_ports show_bram_button]
 
 
 #from tongtong

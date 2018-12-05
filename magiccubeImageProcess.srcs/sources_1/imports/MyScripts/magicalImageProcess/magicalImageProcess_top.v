@@ -37,6 +37,7 @@ module magicalImageProcess_top (
     input set_side_data_button,
     input cyclic_filtering_button,
     input vga_top_button,
+    input show_bram_button,
 
 
     inout[15:0] sram_data,
@@ -104,6 +105,7 @@ module magicalImageProcess_top (
     wire fangdou_set_side_data_button;
     wire fangdou_cyclic_filtering_button;
     wire fangdou_vga_top_button;
+    wire fangdou_show_bram_button;
 
 
     reg[26:0] oneside_dout1 = 27'b000000000000110110000110110;
@@ -157,9 +159,11 @@ module magicalImageProcess_top (
     wire[15:0] frame_pixel_1_r;
     blk_mem_gen_0 blk_mem_gen_0 (
           .clka(cam_ov7670_ov7725_0_wclk),    // input wire clka
+
           .wea(frame_1_we),      // input wire [0:0] wea
           .addra(frame_addr_1_w),  // input wire [16:0] addra
           .dina(frame_pixel_1_w),    // input wire [15:0] dina
+
           .clkb(cam_ov7670_ov7725_0_wclk),    // input wire clkb
           .addrb(frame_addr_1_r),  // input wire [16 : 0] addrb
           .doutb(frame_pixel_1_r)  // output wire [15 : 0] doutb
@@ -232,6 +236,11 @@ module magicalImageProcess_top (
         .fangdou_button(fangdou_vga_top_button)
     );
 
+    fangdou fangdou_10 (
+        .clk(clk_in_1),
+        .button(show_bram_button),
+        .fangdou_button(fangdou_show_bram_button)
+    );
 
     localparam[3:0] max_num_cyclic_filtering = 2;
     reg[3:0] num_cyclic_filtering = 0; // the rest of num of cyclic filtering
@@ -422,12 +431,19 @@ module magicalImageProcess_top (
 
 
 
-    reg[8:0] color1_Hue_input = 340; // red
+/*    reg[8:0] color1_Hue_input = 340; // red
     reg[8:0] color2_Hue_input = 5; // orange
     reg[8:0] color3_Hue_input = 80; // yellow
     reg[8:0] color4_Hue_input = 170; // green
     reg[8:0] color5_Hue_input = 230; // blue
-    reg[8:0] color6_Hue_input = 340; // also red
+    reg[8:0] color6_Hue_input = 340; // also red*/
+    reg[8:0] color1_Hue_input = 355; // red
+    reg[8:0] color2_Hue_input = 355; // alse red
+    reg[8:0] color3_Hue_input = 85; // yellow
+    reg[8:0] color4_Hue_input = 155; // green
+    reg[8:0] color5_Hue_input = 225; // blue
+    reg[8:0] color6_Hue_input = 355; // also red
+
     // num 6 color is white code:2'b110
     reg[7:0] color1_S_input = 255;
     reg[7:0] color2_S_input = 255;
@@ -447,6 +463,12 @@ module magicalImageProcess_top (
                 color1_Hue_input <= hsv25[24:16];
                 color1_S_input <= hsv25[15:8];
                 color1_V_input <= hsv25[7:0];
+                color2_Hue_input <= hsv25[24:16];
+                color2_S_input <= hsv25[15:8];
+                color2_V_input <= hsv25[7:0];
+                color6_Hue_input <= hsv25[24:16];
+                color6_S_input <= hsv25[15:8];
+                color6_V_input <= hsv25[7:0];
             end
             6'b111101: begin
                 color2_Hue_input <= hsv25[24:16];
@@ -478,6 +500,26 @@ module magicalImageProcess_top (
             end          
         endcase
     end
+    reg[7:0] color_S_margin_default = 45;
+    reg[25:0] clk_reg;
+    always@(posedge clk_in_1) begin
+        clk_reg <= clk_reg + 1; 
+    end
+    always@(posedge clk_reg[25]) begin
+        if(fangdou_show_bram_button) begin
+            case(fangdou_side_select_signals) 
+                6'b111000:begin
+                    color_S_margin_default <= color_S_margin_default + 1;
+                end
+                6'b000111:begin
+                    color_S_margin_default <= color_S_margin_default - 1;
+                end
+                default: begin
+                    // nop
+                end
+            endcase
+        end
+    end
     wire enable_color_coding;
     wire[2:0] color_coding;
     wire done_color_coding;
@@ -506,7 +548,8 @@ module magicalImageProcess_top (
         .color4_V_input(color4_V_input),
         .color5_V_input(color5_V_input),
         .color6_V_input(color6_V_input),
-
+        .color_S_margin_default(color_S_margin_default),
+        
         .hsv25(hsv25),
         .color_coding(color_coding),
 
@@ -532,7 +575,6 @@ module magicalImageProcess_top (
     );
 
 
-reg vga_top_en;
 reg last_little_turn;
 always@(posedge cam_ov7670_ov7725_0_wclk) begin
     if(rst_1) begin
@@ -546,7 +588,6 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 done_top <= 0;
                 last_little_turn <= 0;
                 if(enable_in_sram) begin
-                    //vga_top_en <= 1;
                     status <= s_write;
                 end else if(fangdou_set_side_data_button) begin
                     num_cyclic_filtering <= 1;
@@ -610,7 +651,7 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                         3'd3: oneside_dout3 <= oneside_dout;
                         3'd4: oneside_dout4 <= oneside_dout;
                         3'd5: oneside_dout5 <= oneside_dout;
-                        3'd6: oneside_dout6 <= oneside_dout;
+                        3'd6: begin oneside_dout6 <= oneside_dout; done_top <= 1; end
                         default: begin
                             // nop
                         end
@@ -618,11 +659,10 @@ always@(posedge cam_ov7670_ov7725_0_wclk) begin
                 end
             end
             s_done: begin
-                done_top <= 1;
+                done_top <= 0;
                 status <= s_ready;
             end
             s_ready: begin
-                done_top <= 0;
                 status <= s_idle;
             end            
             default: begin
@@ -730,15 +770,15 @@ assign data_wr_out_median   = status == s_median_filter ? data_wr_out : 16'bz;
 assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
 
 
-
+    wire[3:0] en0_watch,en1_watch;
+    assign en0 = fangdou_show_bram_button ? en0_watch : 4'b0;
+    assign en1 = fangdou_show_bram_button ? en1_watch : 4'b0;
     super_stop_watch_test super_stop_watch_test_0 (
-        .en0(en0),.en1(en1),
+        .en0(en0_watch),.en1(en1_watch),
         .sseg0(sseg0),.sseg1(sseg1),
-        .show_data({0,color2_V_input[7:4],color2_V_input[3:0],color2_S_input[7:4],color2_S_input[3:0],3'b000,color2_Hue_input[8],color2_Hue_input[7:4],color2_Hue_input[3:0]}),
+        .show_data({4'b0,color_S_margin_default[7:4],color_S_margin_default[3:0],hsv25[15:12],hsv25[11:8],3'b000,hsv25[24],hsv25[23:20],hsv25[19:16]}),
         .clk(clk_in_1)
     );
-
-
 
 
     // from tongtong
@@ -746,9 +786,8 @@ assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
     wire[15:0] frame_pixel_1_r_vga;
     wire[18:0] frame_addr_reader_vga;
     wire[15:0] frame_pixel_reader_vga;
-    //wire vga_top_en;
-    wire vga_top_rst;
-    assign vga_top_rst = 1;
+    reg vga_top_en = 0;
+    reg vga_top_rst = 1;
     vga_top vga_top_0(
         .clk(clk_in_1), //100MHz
         .en(vga_top_en),
@@ -775,6 +814,8 @@ assign data_wr_out_reader   = status == s_idle ? data_wr_out : 16'bz;
 always@* begin
     if(status == s_median_filter) begin
         frame_1_we = frame_1_we_median;
+    end else if(status == s_idle && fangdou_show_bram_button) begin
+        frame_1_we = cam_ov7670_ov7725_0_we;
     end else begin
         frame_1_we = 0;
     end
@@ -782,6 +823,8 @@ end
 always@* begin
     if(status == s_median_filter) begin
         frame_addr_1_w = frame_addr_1_w_median;
+    end else if(status == s_idle) begin
+        frame_addr_1_w = cam_ov7670_ov7725_0_addr;
     end else begin
         frame_addr_1_w = 0;
     end
@@ -789,6 +832,8 @@ end
 always@* begin
     if(status == s_median_filter) begin
         frame_pixel_1_w = frame_pixel_1_w_median;
+    end else if(status == s_idle) begin
+        frame_pixel_1_w = cam_ov7670_ov7725_0_dout;
     end else begin
         frame_pixel_1_w = 0;
     end
