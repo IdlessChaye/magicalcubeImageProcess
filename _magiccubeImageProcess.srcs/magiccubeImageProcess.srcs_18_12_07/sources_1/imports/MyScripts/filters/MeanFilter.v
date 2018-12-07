@@ -18,7 +18,7 @@
 
 `timescale 1ns / 1ns
 
-module MeanFilter #(parameter N=5,
+module MeanFilter #(parameter N=3,
                     parameter H_cnt_max = 320,
                     parameter V_cnt_max = 240) (
     input wclk,
@@ -65,20 +65,16 @@ sram_write sram_write_0 (
 
 
 reg out_of_range;
-reg[N:0] cnt_read_square;
-reg[1:0] cnt_calc_mean;
+reg[2:0] cnt_read_square;
 reg[9:0] H_cnt,V_cnt;
 reg[16:0] address;
 
 reg[4:0] mean_R;
 reg[5:0] mean_G;
 reg[4:0] mean_B;
-reg[9:0] sum_R;
-reg[10:0] sum_G;
-reg[9:0] sum_B;
-reg[14:0] sum_for_div_R; // 32 + 8 + 1 / 1024 // 64 + 32 + 16 + 2 / 1024
-reg[15:0] sum_for_div_G;
-reg[14:0] sum_for_div_B;
+reg[7:0] sum_R;
+reg[8:0] sum_G;
+reg[7:0] sum_B;
 
 
 localparam s_idle         = 4'b0000;
@@ -114,13 +110,13 @@ always @ (posedge wclk) begin
             end
             s_judge: begin
                 address <= V_cnt * H_cnt_max + H_cnt;
-                if(H_cnt < N - 1 || H_cnt > H_cnt_max - N || V_cnt < N - 1 || V_cnt > V_cnt_max - N) begin
+                if(H_cnt < 1 || H_cnt > H_cnt_max - 2 || V_cnt < 1 || V_cnt > V_cnt_max - 2) begin
                     frame_addr_1_r <= V_cnt * H_cnt_max + H_cnt;
                     out_of_range <= 1;
                     status <= s_set_data;
                 end else begin
                     frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt - 1;// zuoshangjiao de nengsuanwanma?
-                    cnt_read_square <= N*N - 1;
+                    cnt_read_square <= 7;
                     sum_R <= 0;
                     sum_G <= 0;
                     sum_B <= 0;
@@ -131,59 +127,8 @@ always @ (posedge wclk) begin
             s_read_square: begin // default N = 3
                 cnt_read_square <= cnt_read_square - 1;
                 case(cnt_read_square)
-                    24: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;                    
-                    end
-                    23: begin
-                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt;
-                    end
-                    22: begin
-                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt + 1;
-                    end
-                    21: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt + 1;                   
-                    end
-                    20: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
-                    end
-                    19: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;
-                    end
-                    18: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;
-                    end
-                    17: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt;
-                    end
-                    16: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;                    
-                    end
-                    15: begin
-                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt;
-                    end
-                    14: begin
-                        frame_addr_1_r <= (V_cnt - 1) * H_cnt_max + H_cnt + 1;
-                    end
-                    13: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt + 1;                   
-                    end
-                    12: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
-                    end
-                    11: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;
-                    end
-                    10: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;
-                    end
-                    9: begin
-                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt;
-                    end
-                    8: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
-                    end
                     7: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;                        
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt;                        
                     end
                     6: begin
                         frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt + 1;                    
@@ -201,7 +146,7 @@ always @ (posedge wclk) begin
                         frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt - 1;
                     end
                     1: begin
-                        frame_addr_1_r <= (V_cnt) * H_cnt_max + H_cnt;
+                        frame_addr_1_r <= (V_cnt + 1) * H_cnt_max + H_cnt - 1;
                     end
                     default: begin
                         frame_addr_1_r <= 0;
@@ -212,44 +157,12 @@ always @ (posedge wclk) begin
                 sum_G <= sum_G + frame_pixel_1_r[10:5];
                 sum_B <= sum_B + frame_pixel_1_r[4:0];   
                 if(cnt_read_square == 0) begin
-                    cnt_calc_mean <= 3;       
-                    sum_for_div_R <= 0;
-                    sum_for_div_G <= 0;
-                    sum_for_div_B <= 0;
-                    status <= s_calc_mean;
+                    mean_R <= sum_R[7:3];
+                    mean_G <= sum_G[8:3];
+                    mean_B <= sum_B[7:3];
+                    status <= s_set_data;
                 end else begin             
                     status <= s_read_square;
-                end
-            end
-            s_calc_mean: begin
-                cnt_calc_mean <= cnt_calc_mean - 1;
-                case(cnt_calc_mean) 
-                    3: begin
-                        sum_for_div_R <= {5'b0,sum_R};
-                        sum_for_div_G <= {5'b0,sum_G};
-                        sum_for_div_B <= {5'b0,sum_B};                      
-                    end
-                    2: begin
-                        sum_for_div_R <= sum_for_div_R + {sum_R,5'b0};
-                        sum_for_div_G <= sum_for_div_G + {sum_G,5'b0};
-                        sum_for_div_B <= sum_for_div_B + {sum_B,5'b0};   
-                    end
-                    1: begin
-                        sum_for_div_R <= sum_for_div_R + {2'b0,sum_R,3'b0};
-                        sum_for_div_G <= sum_for_div_G + {2'b0,sum_G,3'b0};
-                        sum_for_div_B <= sum_for_div_B + {2'b0,sum_B,3'b0}; 
-                    end
-                    0: begin
-                        mean_R <= sum_for_div_R[14:10];
-                        mean_G <= sum_for_div_G[15:10];
-                        mean_B <= sum_for_div_B[14:10];
-                    end
-                    default: begin
-                        // nop
-                    end
-                endcase
-                if(cnt_calc_mean == 0) begin
-                    status <= s_set_data;
                 end
             end
             s_set_data: begin
